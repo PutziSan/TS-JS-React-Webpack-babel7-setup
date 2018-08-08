@@ -32,6 +32,11 @@ export class AppView extends React.Component {
         <div>
           <h1>42!</h1>
           <FontAwesomeIcon icon={faCoffee} />
+
+
+
+
+
           <h2>import PNG- noar</h2>
           asd asdasd asdasd
           <img
