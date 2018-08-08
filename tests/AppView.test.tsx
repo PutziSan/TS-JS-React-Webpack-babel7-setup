@@ -1,9 +1,13 @@
+import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { AppView } from '../src/components/AppView';
 
+import 'jest-enzyme';
+
 it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(<AppView />, div);
-  ReactDOM.unmountComponentAtNode(div);
+  mount(<AppView />);
+});
+
+it('renders the correct headline', () => {
+  expect(shallow(<AppView />).find('h1')).toHaveText('42!');
 });

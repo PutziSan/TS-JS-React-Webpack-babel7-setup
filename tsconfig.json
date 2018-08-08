@@ -21,6 +21,5 @@
     "esModuleInterop": true,
     "noImplicitAny": true
   },
-  "include": ["src/**/*"],
-  "exclude": [".git", "node_modules"]
+  "exclude": [".git", "node_modules", "dist"]
 }
