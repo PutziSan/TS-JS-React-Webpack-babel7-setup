@@ -19,7 +19,7 @@ const LoadAppView = reactLoadable({
   render: (loaded, props) => <loaded.AsyncTest {...props} />
 });
 
-export class AppView extends React.Component {
+export class AppView extends React.Component<{}, { start: boolean }> {
   state = {
     start: false
   };
@@ -32,11 +32,6 @@ export class AppView extends React.Component {
         <div>
           <h1>42!</h1>
           <FontAwesomeIcon icon={faCoffee} />
-
-
-
-
-
           <h2>import PNG- noar</h2>
           asd asdasd asdasd
           <img
