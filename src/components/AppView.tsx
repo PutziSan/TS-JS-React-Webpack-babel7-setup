@@ -13,6 +13,8 @@ const a = defineMessages({
   }
 });
 
+console.log('Asd');
+
 const LoadAppView = reactLoadable({
   loader: () => import('./AsyncTest'),
   loading: () => <div>LOAD!!!</div>,

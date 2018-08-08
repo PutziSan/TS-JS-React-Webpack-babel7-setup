@@ -13,9 +13,6 @@
     "no-multiline-string": false,
     "no-any": {
       "severity": "warning"
-    },
-    "no-console": {
-      "severity": "warning"
     }
   }
 }
