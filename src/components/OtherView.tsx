@@ -23,6 +23,10 @@ export class OtherView extends React.Component<OtherViewProps, OtherViewState> {
       // Simulate a JS error
       throw new Error('I crashed!');
     }
-    return <h1 onClick={this.handleClick}>{this.state.counter}</h1>;
+    return (
+      <h1 onClick={this.handleClick}>
+        {this.state.counter} (click 5x on counter to raise an error)
+      </h1>
+    );
   }
 }

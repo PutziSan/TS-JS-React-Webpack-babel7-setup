@@ -43,11 +43,7 @@ class InnerApp extends React.Component<{}, AppViewState> {
             Load async with dynamic <code>import()</code>
           </h2>
           <button onClick={this.toggleStart}>toggle loading</button>
-          {this.state.start && (
-            <React.Fragment>
-              <LoadAppView />
-            </React.Fragment>
-          )}
+          {this.state.start && <LoadAppView />}
           <hr />
           <h2>Mix JS with TS:</h2>
           <JsView name="comes from TS" />

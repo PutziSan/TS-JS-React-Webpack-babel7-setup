@@ -184,15 +184,15 @@ Since Babel7 the integration with TypeScript is much easier, because Babel under
 
 See [TS-doku#compiler-options](https://www.typescriptlang.org/docs/handbook/compiler-options.html), below only things worth explaining are mentioned:
 
-| config                                                                                          | value            | description                                                                                                         |
-| ----------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| [moduleResolution](https://www.typescriptlang.org/docs/handbook/module-resolution.html)         | `node`           | TLDR: `node` is nowadays default and bether                                                                         |
-| [module](https://www.typescriptlang.org/docs/handbook/modules.html#code-generation-for-modules) | `es6`            | since we also use ES6-`import`/`export` js, it makes sense to keep this also for TS                                 |
-| [target](https://www.typescriptlang.org/docs/handbook/modules.html#code-generation-for-modules) | `es6`            | since TS is going through babel again anyway, the ES6                                                               |
-| [jsx](https://www.typescriptlang.org/docs/handbook/jsx.html)                                    | `preserve`       | `preserve` means that JSX is not converted to `React.createElement`, this is done by the babel compiler.            |
-| [lib](https://www.typescriptlang.org/docs/handbook/compiler-options.html) (search for `--lib`)  | `["es6", "dom"]` | "List of library files to be included in the compilation."                                                          |
-| sourceMap                                                                                       | `false`          | since webpack writes the sourcemaps for us it can be neglected by TS, see [`webpack.config.js`](#webpack-config-js) |
-| allowJs                                                                                         | `true`           | allows import and export of JS without compiler-errors                                                              |
+| config                                                                                          | value            | description                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [moduleResolution](https://www.typescriptlang.org/docs/handbook/module-resolution.html)         | `node`           | TLDR: `node` is nowadays default and bether                                                                                                                |
+| [module](https://www.typescriptlang.org/docs/handbook/modules.html#code-generation-for-modules) | `esnext`         | since we also use ES6-`import`/`export` js, it makes sense to keep this also for TS (`esnext` so that TS-compiler does not complain about dynamic imports) |
+| [target](https://www.typescriptlang.org/docs/handbook/modules.html#code-generation-for-modules) | `es6`            | since TS is going through babel again anyway, the ES6                                                                                                      |
+| [jsx](https://www.typescriptlang.org/docs/handbook/jsx.html)                                    | `preserve`       | `preserve` means that JSX is not converted to `React.createElement`, this is done by the babel compiler.                                                   |
+| [lib](https://www.typescriptlang.org/docs/handbook/compiler-options.html) (search for `--lib`)  | `["es6", "dom"]` | "List of library files to be included in the compilation."                                                                                                 |
+| sourceMap                                                                                       | `false`          | since webpack writes the sourcemaps for us it can be neglected by TS, see [`webpack.config.js`](#webpack-config-js)                                        |
+| allowJs                                                                                         | `true`           | allows import and export of JS without compiler-errors                                                                                                     |
 
 ### typescript-dependencies
 
