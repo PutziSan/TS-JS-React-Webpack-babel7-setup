@@ -1,13 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { OtherView } from './OtherView';
-import { commonMessagesTs } from '../commonMessagesTs';
-import { FormattedMessage } from 'react-intl';
 
 export const JsView = props => (
   <div>
+    <h3>This is a JS-Component</h3>
     <p>{props.name}</p>
-    <p>other child:</p>
-    <OtherView tester="OMG" />
-    <FormattedMessage {...commonMessagesTs.testerTs} />
+    <p>and also renders a TS-Component:</p>
+    <OtherView testProp="comes from JS" />
   </div>
 );
+
+JsView.propTypes = {
+  name: PropTypes.string.isRequired
+};

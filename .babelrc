@@ -1,7 +1,6 @@
 {
   "presets": [
     "@babel/preset-react",
-    "@babel/preset-typescript",
     [
       "@babel/preset-env",
       {
@@ -10,14 +9,21 @@
           "browsers": [">0.25%"]
         }
       }
-    ]
+    ],
+    "@babel/preset-typescript"
   ],
   "plugins": [
-    "react-hot-loader/babel",
     ["@babel/plugin-proposal-class-properties", { "loose": true }],
     "@babel/plugin-syntax-dynamic-import"
   ],
   "env": {
+    "development": {
+      "plugins": [
+        "react-hot-loader/babel",
+        ["@babel/plugin-proposal-class-properties", { "loose": true }],
+        "@babel/plugin-syntax-dynamic-import"
+      ]
+    },
     "test": {
       "presets": [
         "@babel/preset-react",
@@ -31,8 +37,7 @@
       ],
       "plugins": [
         ["@babel/plugin-proposal-class-properties", { "loose": true }],
-        "dynamic-import-node",
-        "@babel/plugin-transform-modules-commonjs"
+        "dynamic-import-node"
       ]
     }
   }

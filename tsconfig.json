@@ -2,23 +2,23 @@
   "compilerOptions": {
     "outDir": "./dist/",
 
-    "module": "commonjs",
-    "target": "es5",
+    "moduleResolution": "node",
+    "module": "es6",
+    "target": "es6",
 
-    "jsx": "react",
+    "jsx": "preserve",
 
-    "lib": ["es2015", "dom"],
+    "lib": ["es6", "dom"],
 
-    "sourceMap": true,
+    "sourceMap": false,
 
     "allowJs": true,
 
     "strict": true,
+    "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
     "noImplicitAny": true
   },
   "exclude": [".git", "node_modules", "dist"]

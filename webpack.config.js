@@ -3,29 +3,18 @@ const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 
 const babelLoader = require.resolve('babel-loader');
-const sourceMapLoader = require.resolve('source-map-loader');
 const fileLoader = require.resolve('file-loader');
 
-const dev = process.env.NODE_ENV !== 'production';
-
-const HTMLWebpackPluginConfig = new HTMLWebpackPlugin({
-  template: path.join(__dirname, '/src/index.html'),
-  filename: 'index.html',
-  inject: 'body'
-});
-
-const DefinePluginConfig = new webpack.DefinePlugin({
-  'process.env.NODE_ENV': JSON.stringify('production')
-});
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
-  entry: [path.join(__dirname, 'src', 'app.tsx')],
+  entry: [path.join(__dirname, 'src', 'index.tsx')],
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, '/dist')
   },
-  mode: dev ? 'development' : 'production',
-  devtool: dev ? 'inline-source-map' : 'source-map',
+  mode: isDev ? 'development' : 'production',
+  devtool: isDev ? 'eval-source-map' : 'source-map',
   module: {
     rules: [
       {
@@ -34,13 +23,13 @@ module.exports = {
         loader: babelLoader
       },
       {
-        test: /\.js$/,
-        use: [sourceMapLoader],
-        enforce: 'pre'
-      },
-      {
-        test: /\.(jpe?g|png|gif|svg)$/i,
-        loader: fileLoader
+        test: /\.(jpe?g|png|gif|svg|pdf)$/i,
+        exclude: /node_modules/,
+        loader: fileLoader,
+        options: {
+          name: '[name].[hash:8].[ext]',
+          outputPath: 'assets/'
+        }
       }
     ]
   },
@@ -51,12 +40,19 @@ module.exports = {
     host: 'localhost',
     port: '3000',
     hot: true,
+    // sp the public folder is also recognized in dev, you have to copy it on your own for production use!
+    contentBase: path.join(__dirname, 'public'),
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
     historyApiFallback: true
   },
-  plugins: dev
-    ? [HTMLWebpackPluginConfig, new webpack.HotModuleReplacementPlugin()]
-    : [HTMLWebpackPluginConfig, DefinePluginConfig]
+  plugins: [
+    new HTMLWebpackPlugin({
+      template: path.join(__dirname, '/src/index.html'),
+      filename: 'index.html',
+      inject: 'body'
+    }),
+    isDev && new webpack.HotModuleReplacementPlugin()
+  ].filter(Boolean)
 };

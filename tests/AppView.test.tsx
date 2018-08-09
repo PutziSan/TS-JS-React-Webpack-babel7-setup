@@ -1,13 +1,13 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
-import { AppView } from '../src/components/AppView';
+import { App } from '../src/components/App';
 
 import 'jest-enzyme';
 
 it('renders without crashing', () => {
-  mount(<AppView />);
+  mount(<App />);
 });
 
 it('renders the correct headline', () => {
-  expect(shallow(<AppView />).find('h1')).toHaveText('42!');
+  expect(shallow(<App />).find('h1')).toHaveText('42!');
 });

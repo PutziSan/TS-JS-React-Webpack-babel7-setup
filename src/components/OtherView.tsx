@@ -1,15 +1,28 @@
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { commonMessagesJs } from '../commonMessagesJs';
 
 interface OtherViewProps {
-  tester: string;
+  testProp: string;
 }
 
-export const OtherView: React.SFC<OtherViewProps> = props => (
-  <div>
-    {props.tester}
-    <br />
-    <FormattedMessage {...commonMessagesJs.testerJs} />
-  </div>
-);
+interface OtherViewState {
+  counter: number;
+}
+
+export class OtherView extends React.Component<OtherViewProps, OtherViewState> {
+  state = {
+    counter: 0
+  };
+
+  handleClick = () =>
+    this.setState(({ counter }) => ({
+      counter: counter + 1
+    }));
+
+  render() {
+    if (this.state.counter === 5) {
+      // Simulate a JS error
+      throw new Error('I crashed!');
+    }
+    return <h1 onClick={this.handleClick}>{this.state.counter}</h1>;
+  }
+}
