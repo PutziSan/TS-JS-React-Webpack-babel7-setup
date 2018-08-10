@@ -255,3 +255,26 @@ use `babel.config.js` over `.babelrc`,
 - [laut babel](https://new.babeljs.io/docs/en/next/configuration.html) ist das eigentlich der präferirte weg für babel7
 - example for current config lays in `documentation/example-babel.config.js`
 - but is currently still buggy and/or undocumented
+
+## TODO (document!)
+
+uglifyjs
+environmentvariables (dotenv + EnvironmentPlugin)
+pathinfo true
+
+performance => https://github.com/webpack/docs/wiki/build-performance + https://webpack.js.org/guides/build-performance/
+
+babel runtime-magix: https://new.babeljs.io/docs/en/next/babel-plugin-transform-runtime.html
+Normalerweise setzt babel für jedes file einzeln die polyfills, mit runtime werden die entsprechend als import von @babel/runtime genutzt, wobei abhängig von "useESModules" die CJS bzw ES6-Module genutzt werden:
+
+ohne runtime setzt babel zum beispiel das oben ein:
+
+```javascript
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function');
+  }
+}
+```
+
+mit runtime ... (siehe https://new.babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#useesmodules)

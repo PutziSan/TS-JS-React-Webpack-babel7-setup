@@ -1,4 +1,5 @@
 {
+  "sourceType": "module",
   "presets": [
     "@babel/preset-react",
     [
@@ -14,14 +15,16 @@
   ],
   "plugins": [
     ["@babel/plugin-proposal-class-properties", { "loose": true }],
-    "@babel/plugin-syntax-dynamic-import"
+    "@babel/plugin-syntax-dynamic-import",
+    ["@babel/plugin-transform-runtime", { "useESModules": true }]
   ],
   "env": {
     "development": {
       "plugins": [
         "react-hot-loader/babel",
         ["@babel/plugin-proposal-class-properties", { "loose": true }],
-        "@babel/plugin-syntax-dynamic-import"
+        "@babel/plugin-syntax-dynamic-import",
+        "@babel/plugin-transform-runtime"
       ]
     },
     "test": {
