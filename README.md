@@ -1,4 +1,4 @@
-# TS-JS-React-Cross-Project via Webpack4 and babel7
+# TS-JS-React-Project via Webpack4 and babel7
 
 The project is actually only built with the latest Babel-features + Webpack4 + jest for unit-tests. It exists because I was not able to understand the configurations of other similar projects.
 
