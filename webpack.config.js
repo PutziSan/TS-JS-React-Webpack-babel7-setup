@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 require('dotenv').config();
 
@@ -15,9 +17,10 @@ const isDev = process.env.NODE_ENV === 'development';
 module.exports = {
   entry: [path.join(__dirname, 'src', 'index.tsx')],
   output: {
-    filename: 'bundle.js',
+    filename: '[name].[contenthash:8].js',
+    chunkFilename: '[id].[contenthash:8].js',
     path: path.join(__dirname, '/dist'),
-    pathinfo: true
+    pathinfo: isDev
   },
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'eval' : 'source-map',
@@ -33,16 +36,13 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: [styleLoader, cssLoader]
+        use: [isDev ? styleLoader : MiniCssExtractPlugin.loader, cssLoader]
       },
       {
-        test: /\.(jpe?g|png|gif|svg|pdf)$/i,
+        test: /\.(jpe?g|png|gif|svg|woff|woff2|eot|ttf|pdf)$/i,
         exclude: /node_modules/,
         loader: fileLoader,
-        options: {
-          name: '[name].[hash:8].[ext]',
-          outputPath: 'assets/'
-        }
+        options: { name: '[name].[hash:8].[ext]', outputPath: 'assets/' }
       }
     ]
   },
@@ -51,30 +51,23 @@ module.exports = {
     port: '3000',
     hot: true,
     contentBase: path.join(__dirname, 'public'),
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
+    headers: { 'Access-Control-Allow-Origin': '*' },
     historyApiFallback: true
   },
   optimization: {
     minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          output: {
-            comments: false
-          }
-        },
-        sourceMap: true
-      })
+      new UglifyJsPlugin(require('./dev/webpack/ugilfyJsPluginOptions')),
+      new OptimizeCSSAssetsPlugin(require('./dev/webpack/optimizeCssOpts'))
     ]
   },
   plugins: [
     new webpack.EnvironmentPlugin(Object.keys(process.env)),
     new HTMLWebpackPlugin({
-      template: path.join(__dirname, '/src/index.html'),
+      template: path.join(__dirname, 'src', 'index.html'),
       filename: 'index.html',
       inject: 'body'
     }),
-    isDev && new webpack.HotModuleReplacementPlugin()
+    isDev && new webpack.HotModuleReplacementPlugin(),
+    !isDev && new MiniCssExtractPlugin(require('./dev/webpack/cssExtractOpts'))
   ].filter(Boolean)
 };

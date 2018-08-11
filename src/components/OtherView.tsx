@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import './OtherView.css';
+
 interface OtherViewProps {
   testProp: string;
 }
@@ -24,7 +26,7 @@ export class OtherView extends React.Component<OtherViewProps, OtherViewState> {
       throw new Error('I crashed!');
     }
     return (
-      <h1 onClick={this.handleClick}>
+      <h1 onClick={this.handleClick} className="other-view">
         {this.state.counter} (click 5x on counter to raise an error)
       </h1>
     );

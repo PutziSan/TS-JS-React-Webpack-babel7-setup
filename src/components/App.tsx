@@ -5,6 +5,8 @@ import yinYang2000pxPng from './assets/yin-yang-2000px.png';
 import { ErrorBoundary } from './ErrorBoundary';
 import { JsView } from './JsView';
 
+import './App.css';
+
 interface AppViewState {
   start: boolean;
 }
@@ -27,7 +29,7 @@ class InnerApp extends React.Component<{}, AppViewState> {
       <ErrorBoundary>
         <div>
           <h1>42!</h1>
-          <h2>import static assets (e.g. PNGs):</h2>
+          <h2 className="app">import static assets (e.g. PNGs):</h2>
           <img
             alt="my"
             style={{ maxHeight: 160, width: 'auto' }}
