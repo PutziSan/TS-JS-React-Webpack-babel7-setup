@@ -3,6 +3,8 @@ const typescriptPreset = require('@babel/preset-typescript').default;
 const envPreset = require('@babel/preset-env').default;
 const classPropertiesPlugin = require('@babel/plugin-proposal-class-properties')
   .default;
+const objectSpreadTransformation = require('@babel/plugin-proposal-object-rest-spread')
+  .default;
 const dynamicImportSyntaxPlugin = require('@babel/plugin-syntax-dynamic-import')
   .default;
 const runtimeTransformPlugin = require('@babel/plugin-transform-runtime')
@@ -34,6 +36,7 @@ module.exports = api => {
     plugins: [
       isDev && reactHotLoaderPlugin,
       [classPropertiesPlugin, { loose: true }],
+      [objectSpreadTransformation, { useBuiltIns: true }],
       isTest ? dynamicImportForNodePlugin : dynamicImportSyntaxPlugin,
       isProd && [
         runtimeTransformPlugin,
