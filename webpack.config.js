@@ -40,7 +40,6 @@ module.exports = {
       },
       {
         test: /\.(jpe?g|png|gif|svg|woff|woff2|eot|ttf|pdf)$/i,
-        exclude: /node_modules/,
         loader: fileLoader,
         options: {
           name: isDev ? '[name].[ext]' : '[name].[hash:8].[ext]',
