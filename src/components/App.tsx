@@ -11,10 +11,18 @@ interface AppViewState {
   start: boolean;
 }
 
+const Loading: React.SFC<reactLoadable.LoadingComponentProps> = props =>
+  props.error ? (
+    <div>
+      Error! <button onClick={props.retry}>Retry</button>
+    </div>
+  ) : (
+    <div>Loading...</div>
+  );
+
 const LoadAppView = reactLoadable({
-  loader: () => import('./AsyncTest'),
-  loading: () => <div>loading...</div>,
-  render: (loaded, props) => <loaded.AsyncTest {...props} />
+  loader: () => import('./AsyncTest').then(l => l.AsyncTest),
+  loading: Loading
 });
 
 class InnerApp extends React.Component<{}, AppViewState> {
@@ -29,7 +37,7 @@ class InnerApp extends React.Component<{}, AppViewState> {
       <ErrorBoundary>
         <div>
           <h1>42!</h1>
-          <h2 className="app">import static assets (e.g. PNGs):</h2>
+          <h2 className="app">import static assets (e.g. PNGs)</h2>
           <img
             alt="my"
             style={{ maxHeight: 160, width: 'auto' }}

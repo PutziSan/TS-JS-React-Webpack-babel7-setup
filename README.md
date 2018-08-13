@@ -29,11 +29,14 @@ yarn
 - [whats included](#whats-included)
 - [table of contents](#table-of-contents)
 - [babel](#babel)
-  - [`.babelrc`](#babelrc)
+  - [`babel.config.js`](#babelconfigjs)
     - [presets and plugins](#presets-and-plugins)
-    - [babel env-option](#babel-env-option)
-      - [babel-env: development](#babel-env-development)
-      - [babel-env: test](#babel-env-test)
+    - [`production`-specific options](#production-specific-options)
+    - [`development`-specific options](#development-specific-options)
+    - [`test`-specific options](#test-specific-options)
+  - [babel-helper-functions via babel-runtime for smaller bundle-size](#babel-helper-functions-via-babel-runtime-for-smaller-bundle-size)
+  - [polyfills](#polyfills)
+    - [polyfills via babel-polyfill (not recommended)](#polyfills-via-babel-polyfill-not-recommended)
   - [babel-dependencies](#babel-dependencies)
   - [further babel-dependencies](#further-babel-dependencies)
 - [webpack](#webpack)
@@ -58,15 +61,18 @@ yarn
   - [`yarn test`](#yarn-test)
   - [npm-scripts-dependencies](#npm-scripts-dependencies)
 - [git-utilities](#git-utilities)
-- [To Observe for later](#to-observe-for-later)
+- [overwiev dependencies and devDependencies](#overwiev-dependencies-and-devdependencies)
+  - [dependencies](#dependencies)
+  - [devDependencies](#devdependencies)
+- [To Observe](#to-observe)
 
 ## babel
 
 [babel7](https://new.babeljs.io/docs/en/next/babel-core.html) is used equally for all build+test+develop.
 
-### `.babelrc`
+### `babel.config.js`
 
-basic settings are used for the build process (see [npm-scripts#build](#yarn-build)) where for jest and the development-process some adjustments have to be made in the config (via `env` in `.babelrc`).
+Babel is configured via the [babel.config.js](https://babeljs.io/docs/en/next/babelconfigjs)-file. The `process.env.NODE_ENV`-variable is used to determine which plugins and presets should be added.
 
 #### presets and plugins
 
@@ -78,20 +84,57 @@ basic settings are used for the build process (see [npm-scripts#build](#yarn-bui
 - Plugin ordering is first to last
 - Preset ordering is reversed (last to first)
 
-#### babel env-option
+#### `production`-specific options
 
-[env (environment) option](https://new.babeljs.io/docs/en/next/babelrc.html#env-environment-option): Depending on the `process.env.NODE_ENV` the babel-config will be merged while overwriting the new keys. The adjustments we use are explained below:
+- add [@babel/plugin-transform-runtime](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html), see [babel-helper-functions via babel-runtime for smaller bundle-size](#babel-helper-functions-via-babel-runtime-for-smaller-bundle-size)
 
-##### babel-env: development
+#### `development`-specific options
 
-Adds `react-hot-loader/babel`, look at [react-hot-loader](#react-hot-loader) for more information.
+- do not include the [@babel/preset-env](https://new.babeljs.io/docs/en/next/babel-preset-env.html), you will use a new browser for dev, so no need to waste compile-time with this preset during dev
+- add [react-hot-loader/babel](https://github.com/gaearon/react-hot-loader), look at [react-hot-loader](#react-hot-loader) for more information.
 
-##### babel-env: test
+#### `test`-specific options
 
-Customizations for jest, since jest ES6 cannot `import`/`export` and does not understand dynamic imports, see [jest-doku](https://jestjs.io/docs/en/webpack.html#using-with-webpack-2):
+Customizations for jest, since jest ES6 cannot `import`/`export` and does not understand dynamic imports, see [jest-documentation](https://jestjs.io/docs/en/webpack.html#using-with-webpack-2):
 
 - ES6-exports to commonjs: `@babel/preset-env` will be adapted from `"modules": false` to `"modules": "commonjs"`
-- dynamic imports: use [`dynamic-import-node`](https://github.com/airbnb/babel-plugin-dynamic-import-node)-babel-plugin by AirBnb
+- dynamic imports: use [babel-plugin-dynamic-import-node](https://github.com/airbnb/babel-plugin-dynamic-import-node) by AirBnb instead of [@babel/plugin-syntax-dynamic-import](https://new.babeljs.io/docs/en/next/babel-plugin-syntax-dynamic-import.html)
+
+### babel-helper-functions via babel-runtime for smaller bundle-size
+
+Babel injects [small helper-functions](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#why) like `_extend`, when needed. With [@babel/plugin-transform-runtime](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html) the code is not copied in every file, but the transform-runtime-plugin will inject referneces to the [@babel/runtime](https://babeljs.io/docs/en/next/babel-runtime.html)-package, which holds the implementations of the helper-functions (["Helper aliasing"](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#helper-aliasing)). This will result in a smaller bundle. The [`"useESModules": true`-option ](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#useesmodules) will use ES6-modules (`import`/`export`) instead of the implementations with commonjs (`require`/`module.exports`).
+
+Please note that the [@babel/plugin-transform-runtime](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html) can also perform other transformations:
+
+- [`corejs`](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#corejs) will [polyfill new built-ins (Promise, Map, ...)](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#core-js-aliasing) via the [core-js](https://github.com/zloirock/core-js#babel)-library
+- [`regenerator`](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#regenerator) will transform [generator-functions (`function*`)](https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Statements/function*) into [ES5-Code with a local regenerator-runtime](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html#regenerator-aliasing)
+
+In my opinion it is not a good idea to use these options, because the inserted transformations [can take up a lot of space](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime#core-js-aliasing) and it is very likely that others also use polyfills, so it may be that a feature is polyfilled by several different libraries which bloats your bundle. If you are developing a library, it is best not to use features that require polyfills at all. If really necessary, use [ponyfills](https://github.com/sindresorhus/ponyfill) and document the use.
+
+### polyfills
+
+In `src/index.tsx` the first line loads a polyfill-script (`import './bootstrap/polyfills';`), so that the app also runs under Internet Explorer 11 (IE11). Following polyfills are included:
+
+- [`Promise`](https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Promise) via [this promise-library](https://github.com/then/promise) (Promises are required for [code-splitting via dynamic imports](https://webpack.js.org/guides/code-splitting/#dynamic-imports))
+- [`Object.assign`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) via [this object-assign-library](https://github.com/sindresorhus/object-assign) (`Object.assign` is used in some libraries (e.g. [react-loadable](https://github.com/jamiebuilds/react-loadable/blob/master/src/index.js#L105)) but not included in IE11)
+
+Both polyfills together increase the bundle-size by ~ 5kb. If you think you do not need this polyfills you can remove them. If you need other polyfills, because you use new features or have to support very old browsers, you should attach them in `src/bootstrap/polyfills.js`.
+
+#### polyfills via babel-polyfill (not recommended)
+
+To stop thinking about polyfills you can automate this process with [babel-polyfill](https://babeljs.io/docs/en/next/babel-polyfill). Similar to [@babel/plugin-transform-runtime with the `corejs`-option](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime#core-js-aliasing), polyfills via [core-js](https://github.com/zloirock/core-js#babel) are added for older browsers. In contrast to runtime, the polyfills are loaded globally into the application (which is not recommended for libraries).
+
+You can then additionaly use the [`useBuiltIns`-option of the babel-preset-env](https://babeljs.io/docs/en/next/babel-preset-env#usebuiltins):
+
+- `useBuiltIns: 'usage'`: Adds specific imports for polyfills when they are used in each file. We take advantage of the fact that a bundler will load the same polyfill only once. Be aware that this will not polyfill usages in `node_modules`
+- `useBuiltIns: 'entry'`: You need to import `@babel/polyfill` in your entry-file once, babel will transform this import to only include imports needed by the specified [preset-env `target`-option](https://babeljs.io/docs/en/next/babel-preset-env#targets); At the moment (as of 13.08.2018) this is for `browsers: ['>0.25%']` still over 80 kb
+
+I would not recommend the use of babel-polyfill since:
+
+- either significantly too many polyfills are imported (library standalone or with `useBuiltIns: 'entry'`) or
+- using `useBuiltIns: 'usage'` the polyfills are incosistent (they are included locally per file but change the global namespace) and only functions used in your code are analyzed (since used `node_modules`s are not examined), außerdem ist auch mit dieser Methode
+  - Also with this method the resulting package is bigger than if you install the polyfills yourself as [described above](#polyfills)
+  - For the example app only the two polyfills [mentioned above](#polyfills) are needed to run under IE11, the bundle size was still ~ 14 kb bigger and I had to install the required imports manually into `index.ts`, because preset-env did not recognize that for the dynamic `import()` Promise must polyfill and for React-Loadable `Object.assign`
 
 ### babel-dependencies
 
@@ -114,7 +157,7 @@ Customizations for jest, since jest ES6 cannot `import`/`export` and does not un
 | [babel-core@7.0.0-bridge.0](https://github.com/babel/babel-bridge)             | for jest-test, [siehe jest-doku](https://jestjs.io/docs/en/getting-started.html#using-babel)  |
 | [babel-jest](https://github.com/facebook/jest/tree/master/packages/babel-jest) | so that jest also uses the babel-transformations                                              |
 | [babel-loader@8.0.0-beta.4](https://github.com/babel/babel-loader)             | to transform files via webpack, new babel-load-v8 must be used with new babel7                |
-| [react-hot-loader/babel](react-hot-loader/babel)                               | babel extension for hot-loading to work with react, see [react-hot-loader](#react-hot-loader) |
+| [react-hot-loader/babel](https://github.com/gaearon/react-hot-loader)          | babel extension for hot-loading to work with react, see [react-hot-loader](#react-hot-loader) |
 
 ## webpack
 
@@ -147,14 +190,15 @@ setup:
 
 ### caching of your assets
 
+> Hash functions (to put it simply) always output the same result on repeated calls with a string of any length (they are [deterministic](https://en.wikipedia.org/wiki/Hash_function#Determinism)). I use a `:8`-suffix (like in `[name].[contenthash:8].js`) so that the names don't get too long and [even at this length it is unlikely to get the same result for 2 files](https://community.liferay.com/blogs/-/blogs/will-my-hashing-cache-keys-get-a-conflict-). If this is too uncertain, you can adjust or remove the number
+
 [Hashes](https://en.wikipedia.org/wiki/Hash_function) are used to ensure that unmodified bundles keep the same name for successive builds and changed files get a new bundle name. Thus browsers can effectively cache files by file name. Caching is configured via different plugins and config-entries:
 
 - for your bundled JS-files: `output.filename` (`[name].[contenthash:8].js`) and [`output.chunkFilename`](https://webpack.js.org/configuration/output/#output-chunkfilename) (`[id].[contenthash:8].js`)
 - for your bundled CSS-files: `filename` (`[name].[contenthash:8].js`) and `chunkFilename` (`[id].[contenthash:8].js`) via [mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin#long-term-caching)
+- for other static assets: `options.name` (`[name].[hash:8].[ext]`) in [file-loader](https://github.com/webpack-contrib/file-loader)-options
 
-* for other static assets: `options.name` (`[name].[hash:8].[ext]`) in [file-loader](https://github.com/webpack-contrib/file-loader)-options
-
-> Hash functions (to put it simply) always output the same result on repeated calls with a string of any length (they are [deterministic](https://en.wikipedia.org/wiki/Hash_function#Determinism)). I use a `:8`-suffix (like in `[name].[contenthash:8].js`) so that the names don't get too long and [even at this length it is unlikely to get the same result for 2 files](https://community.liferay.com/blogs/-/blogs/will-my-hashing-cache-keys-get-a-conflict-). If this is too uncertain, you can adjust or remove the number
+> during development you [should not enable any hashing of your filenames](https://github.com/webpack/webpack-dev-server/issues/377#issuecomment-241258405) (This can be neglected for CSS-files via [mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin#long-term-caching) as it is only used in production anyway)
 
 Have a look at [webpacks caching-guide](https://webpack.js.org/guides/caching/) for more information.
 
@@ -187,18 +231,18 @@ Additional all environment variables that you have defined in a `.env`-file will
 
 ## jest
 
-Jest is translated via [babel-jest](https://github.com/facebook/jest/tree/master/packages/babel-jest) via babel to es5 and made usable, for special babel settings see [babel-env: test](#babel-env-test) (`NODE_ENV` to `test` is set by jest).
+Jest is translated via [babel-jest](https://github.com/facebook/jest/tree/master/packages/babel-jest) via babel to es5 and made usable, for special babel settings see [babels `test`-specific options](#test-specific-options) (`NODE_ENV` to `test` is set by jest).
 
 ### `jest.config.js`
 
-| config                       | description                                                                                                 |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| setupTestFrameworkScriptFile | `dev/setupTests.js` configures [jest-enzyme](#jest-enzyme)                                                  |
-| testRegex                    | all tests have to lay inside `tests`                                                                        |
-| moduleFileExtensions         | test these extensions for `import` or `require`, corresponds to `resolve.extensions` in `webpack.config.js` |
-| moduleNameMapper             | mock static assets (img, ...)                                                                               |
-| transform                    | pass every file through babel                                                                               |
-| testURL                      | only a fix for current [issue#2304](https://github.com/jsdom/jsdom/issues/2304)                             |
+| config                       | description                                                                                                                      |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| setupTestFrameworkScriptFile | `dev/setupTests.js` configures [jest-enzyme](#jest-enzyme)                                                                       |
+| testRegex                    | all tests have to lay inside `tests`                                                                                             |
+| moduleFileExtensions         | test these extensions for `import` or `require`, corresponds to `resolve.extensions` in `webpack.config.js`                      |
+| moduleNameMapper             | mock static assets (img, CSS) see [jest-doku - Handling Static Assets](https://jestjs.io/docs/en/webpack#handling-static-assets) |
+| transform                    | pass every file through babel                                                                                                    |
+| testURL                      | only a fix for current [issue#2304](https://github.com/jsdom/jsdom/issues/2304)                                                  |
 
 ### jest-enzyme
 
@@ -228,7 +272,7 @@ Since Babel7 the integration with TypeScript is much easier, because Babel under
 ### react-hot-loader-setup
 
 1. Root-Component (`src/components/App.tsx`) is wrapped with the [`hot`-HOC](https://github.com/gaearon/react-hot-loader#hotmodule-options).
-2. for development the `react-hot-loader/babel`-plugin is enabled (siehe [babel-env: development](#babel-env-development))
+2. for development the `react-hot-loader/babel`-plugin is enabled (see [babels `development`-specific options](#development-specific-options))
 3. in `webpack.config.js`, the `devServer.hot`-prop is set to `true` and the `webpack.HotModuleReplacementPlugin` is enabled, see [webpacks HMR-guide](https://webpack.js.org/guides/hot-module-replacement/)
 
 ## TypeScript
@@ -268,9 +312,11 @@ Scripts defined in `package.json` and executed via `yarn` or `npm run`:
 
 Sets `NODE_ENV` to `development` (OS-agnostic via [cross-env](https://github.com/kentcdodds/cross-env)), and starts the webpack-dev-server, which uses your `webpack.config.js` (more information under [#webpack](#webpack)). In addition, your default browser will open with `http://localhost:3000`
 
-#### `yarn start:perf`
+> per default we are using `devtool: 'eval'` for the `start`-command. according to [webpack](https://webpack.js.org/configuration/devtool/#devtool) the performance can be improved considerably, but the line-number is not correct in case of errors. If you need to debug with correct line-numbers you can use `yarn start:debug`
 
-Sets the `--devtool eval`-flag, according to [webpack](https://webpack.js.org/configuration/devtool/#devtool) the performance can be improved considerably, but the line-number is not correct in case of errors. For more information look at [webpack.config.js - devtool](#webpack-config-js).
+#### `yarn start:debug`
+
+Sets the `--devtool eval-source-map`-flag, see [webpacks documentation](https://webpack.js.org/configuration/devtool/#devtool), the `eval-source-map`-flag is the one with the best performance while sending correct line-numbers (the other flags does not work correct cause we use typescript)
 
 ### `yarn build`
 
@@ -298,15 +344,68 @@ Via [husky](https://github.com/typicode/husky) and[lint-staged](https://github.c
 
 The setup is according to [lint-staged's documentation](https://github.com/okonet/lint-staged#installation-and-setup), but husky is set up via [`/husky.config.js`](https://github.com/typicode/husky#upgrading-from-014) and lint via [`dev/.lintstagedrc`](https://github.com/okonet/lint-staged#configuration). (`package.json` should not be stuffed senselessly).
 
-## To Observe for later
+## overwiev dependencies and devDependencies
+
+If you ever have trouble understanding why a dependency is in `package.json` you can find an overview here, which refers to the corresponding documentation section.
+
+### dependencies
+
+| package                                                                       | link to documenation                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [@babel/runtime](https://babeljs.io/docs/en/next/babel-runtime.html)          | [babel-helper-functions via babel-runtime for smaller bundle-size](#babel-helper-functions-via-babel-runtime-for-smaller-bundle-size)                                                                                                                                                                                                                                                                                      |
+| [object-assign](https://github.com/sindresorhus/object-assign)                | [polyfills](#polyfills)                                                                                                                                                                                                                                                                                                                                                                                                    |
+| [promise](https://github.com/then/promise)                                    | [polyfills](#polyfills)                                                                                                                                                                                                                                                                                                                                                                                                    |
+| [prop-types](https://github.com/facebook/prop-types)                          | So you can use prop-types in your `*.js`-files                                                                                                                                                                                                                                                                                                                                                                             |
+| [react"](https://github.com/facebook/react)                                   | A React-App without the react-package doesn't make that much sense ;)                                                                                                                                                                                                                                                                                                                                                      |
+| [react-dom](https://github.com/facebook/react/tree/master/packages/react-dom) | "This package serves as the entry point of the DOM-related rendering paths. It is intended to be paired with the isomorphic React, which will be shipped as react to npm."                                                                                                                                                                                                                                                 |
+| [react-loadable](https://github.com/jamiebuilds/react-loadable)               | A nice library for [code splitting via webpack](https://webpack.js.org/guides/code-splitting/) and [dynamic `import()` calls](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#Dynamic_Imports).<br /> This library also [automatically supports HMR](https://github.com/gaearon/react-hot-loader#code-splitting) for your dynamic imports (see [react-hot-loader](#react-hot-loader)). |
+
+### devDependencies
+
+The `@types/...`-devDependencies are omitted to explain, have a look at the [DefinitelyTyped-project](https://github.com/DefinitelyTyped/DefinitelyTyped) for more information.
+
+| package                                                                                                                    | link to documenation                                                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| [@babel/core](https://new.babeljs.io/docs/en/next/babel-core.html)                                                         | [babel](#babel)                                                                                                                               |
+| [@babel/plugin-proposal-class-properties](https://new.babeljs.io/docs/en/next/babel-plugin-proposal-class-properties.html) | [babel-dependencies](#babel-dependencies)                                                                                                     |
+| [@babel/plugin-syntax-dynamic-import](https://new.babeljs.io/docs/en/next/babel-plugin-syntax-dynamic-import.html)         | [babel-dependencies](#babel-dependencies)                                                                                                     |
+| [@babel/plugin-transform-runtime](https://babeljs.io/docs/en/next/babel-plugin-transform-runtime.html)                     | [babel-helper-functions via babel-runtime for smaller bundle-size](#babel-helper-functions-via-babel-runtime-for-smaller-bundle-size)         |
+| [@babel/preset-env](https://new.babeljs.io/docs/en/next/babel-preset-env.html)                                             | [babel-dependencies](#babel-dependencies) and [polyfills via babel-polyfill (not recommended)](#polyfills-via-babel-polyfill-not-recommended) |
+| [@babel/preset-react](https://new.babeljs.io/docs/en/next/babel-preset-react.html)                                         | [babel-dependencies](#babel-dependencies)                                                                                                     |
+| [babel-core@7.0.0-bridge.0](https://github.com/babel/babel-bridge)                                                         | [further babel-dependencies](#further-babel-dependencies)                                                                                     |
+| [babel-jest](https://github.com/facebook/jest/tree/master/packages/babel-jest)                                             | [further babel-dependencies](#further-babel-dependencies)                                                                                     |
+| [babel-loader@8.0.0-beta.4](https://github.com/babel/babel-loader)                                                         | [further babel-dependencies](#further-babel-dependencies)                                                                                     |
+| [react-hot-loader](https://github.com/gaearon/react-hot-loader)                                                            | [further babel-dependencies](#further-babel-dependencies) + [react-hot-loader](#react-hot-loader)                                             |
+| [babel-plugin-dynamic-import-node](https://github.com/airbnb/babel-plugin-dynamic-import-node)                             | [`test`-specific options](#test-specific-options)                                                                                             |
+| [typescript](https://github.com/Microsoft/TypeScript)                                                                      | [TypeScript](#typescript)                                                                                                                     |
+| [tslint](https://github.com/palantir/tslint)                                                                               | [typescript-dependencies](#typescript-dependencies)                                                                                           |
+| [tslint-config-prettier](https://github.com/alexjoverm/tslint-config-prettier)                                             | [typescript-dependencies](#typescript-dependencies)                                                                                           |
+| [tslint-react](https://github.com/palantir/tslint-react)                                                                   | [typescript-dependencies](#typescript-dependencies)                                                                                           |
+| [webpack](https://github.com/webpack/webpack)                                                                              | [webpack](#webpack)                                                                                                                           |
+| [webpack-cli](https://github.com/webpack/webpack-cli)                                                                      | [webpack-dependencies](#webpack-dependencies) + [`yarn build`](#yarn-build)                                                                   |
+| [webpack-dev-server](https://github.com/webpack/webpack-dev-server)                                                        | [webpack-dependencies](#webpack-dependencies) + [`yarn start`](#yarn-start)                                                                   |
+| [file-loader](https://github.com/webpack-contrib/file-loader)                                                              | [webpack-dependencies](#webpack-dependencies) + [caching of your assets](#caching-of-your-assets)                                             |
+| [css-loader](https://github.com/webpack-contrib/css-loader)                                                                | [css-configuration](#css-configuration)                                                                                                       |
+| [style-loader](https://github.com/webpack-contrib/style-loader)                                                            | [css-configuration](#css-configuration)                                                                                                       |
+| [mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin)                                      | [css-configuration](#css-configuration) + [caching of your assets](#caching-of-your-assets)                                                   |
+| [optimize-css-assets-webpack-plugin](https://github.com/NMFR/optimize-css-assets-webpack-plugin)                           | [css-configuration](#css-configuration)                                                                                                       |
+| [html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)                                                     | [webpack-dependencies](#webpack-dependencies)                                                                                                 |
+| [uglifyjs-webpack-plugin](https://github.com/webpack-contrib/uglifyjs-webpack-plugin)                                      | [webpack-dependencies](#webpack-dependencies)                                                                                                 |
+| [dotenv](https://github.com/motdotla/dotenv)                                                                               | [webpack-dependencies](#webpack-dependencies)                                                                                                 |
+| [cross-env](https://github.com/kentcdodds/cross-env)                                                                       | [npm-/yarn-scripts](#npm-yarn-scripts)                                                                                                        |
+| [ncp](https://github.com/AvianFlu/ncp)                                                                                     | [`yarn start`](#yarn-start)                                                                                                                   |
+| [rimraf](https://github.com/isaacs/rimraf)                                                                                 | [`yarn start`](#yarn-start)                                                                                                                   |
+| [jest](https://github.com/facebook/jest)                                                                                   | [jest](#jest)                                                                                                                                 |
+| [jest-enzyme](https://github.com/FormidableLabs/enzyme-matchers/tree/master/packages/jest-enzyme)                          | [jest-enzyme](#jest-enzyme)                                                                                                                   |
+| [enzyme](https://github.com/airbnb/enzyme)                                                                                 | [jest-dependencies](#jest-dependencies) + [jest-enzyme](#jest-enzyme)                                                                         |
+| [enzyme-adapter-react-16](https://github.com/airbnb/enzyme/blob/master/docs/installation/react-16.md)                      | [jest-dependencies](#jest-dependencies) + [jest-enzyme](#jest-enzyme)                                                                         |
+| [husky](https://github.com/typicode/husky)                                                                                 | [git-utilities](#git-utilities)                                                                                                               |
+| [lint-staged](https://github.com/okonet/lint-staged)                                                                       | [git-utilities](#git-utilities)                                                                                                               |
+| [prettier](https://github.com/prettier/prettier)                                                                           | [git-utilities](#git-utilities)                                                                                                               |
+
+## To Observe
 
 [webpack-serve](https://github.com/webpack-contrib/webpack-serve)
 
 - seems to be the succesor of webpack-dev-server, [which is only in maintenance mode](https://github.com/webpack/webpack-dev-server#project-in-maintenance)
-- => currently there are no reasonable examples or the like. why webpack-dev-server is the better way up-to-date
-
-use `babel.config.js` over `.babelrc`,
-
-- [laut babel](https://new.babeljs.io/docs/en/next/configuration.html) ist das eigentlich der präferirte weg für babel7
-- example for current config lays in `documentation/example-babel.config.js`
-- but is currently still buggy and/or undocumented
+- => but currently there are no reasonable examples or the like. why webpack-dev-server is the better way up-to-date (08/2018)
