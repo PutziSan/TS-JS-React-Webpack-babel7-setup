@@ -25,6 +25,7 @@ module.exports = {
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'eval' : 'source-map',
   resolve: {
+    symlinks: true,
     extensions: ['.ts', '.tsx', '.js', '.jsx']
   },
   module: {
