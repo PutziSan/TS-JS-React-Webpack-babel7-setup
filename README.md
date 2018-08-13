@@ -25,9 +25,6 @@ yarn
 
 ## table of contents
 
-- [get started](#get-started)
-- [whats included](#whats-included)
-- [table of contents](#table-of-contents)
 - [babel](#babel)
   - [`babel.config.js`](#babelconfigjs)
     - [presets and plugins](#presets-and-plugins)
@@ -56,7 +53,7 @@ yarn
   - [typescript-dependencies](#typescript-dependencies)
 - [npm-/yarn-scripts](#npm-yarn-scripts)
   - [`yarn start`](#yarn-start)
-    - [`yarn start:perf`](#yarn-startperf)
+    - [`yarn start:debug`](#yarn-startdebug)
   - [`yarn build`](#yarn-build)
   - [`yarn test`](#yarn-test)
   - [npm-scripts-dependencies](#npm-scripts-dependencies)
