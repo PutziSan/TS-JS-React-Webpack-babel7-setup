@@ -30,7 +30,7 @@ module.exports = api => {
           }
         }
       ],
-      reactPreset,
+      [reactPreset, { useBuiltIns: true, development: !isProd }],
       typescriptPreset
     ].filter(Boolean),
     plugins: [
