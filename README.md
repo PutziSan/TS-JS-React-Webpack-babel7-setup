@@ -406,7 +406,13 @@ The `@types/...`-devDependencies are omitted to explain, have a look at the [Def
 
 ## To Observe
 
-[webpack-serve](https://github.com/webpack-contrib/webpack-serve)
+- [webpack-serve](https://github.com/webpack-contrib/webpack-serve)
+  - seems to be the succesor of webpack-dev-server, [which is only in maintenance mode](https://github.com/webpack/webpack-dev-server#project-in-maintenance)
+  - => but currently there are no reasonable examples or the like. why webpack-dev-server is the better way up-to-date (08/2018)
+- reduce [moment-js](http://momentjs.com/)-bundle-size via the []webpacks `IgnorePlugin`](https://webpack.js.org/plugins/ignore-plugin/), see ["How to optimize moment.js with webpack"](https://github.com/jmblog/how-to-optimize-momentjs-with-webpack#using-ignoreplugin)
 
-- seems to be the succesor of webpack-dev-server, [which is only in maintenance mode](https://github.com/webpack/webpack-dev-server#project-in-maintenance)
-- => but currently there are no reasonable examples or the like. why webpack-dev-server is the better way up-to-date (08/2018)
+## (intern): Idee das Projekt von der Nutzung ähnlich wie CRA zu machen:
+
+- das auslagern mit all den dependencies und doku in ein projekt was übe cmd-line angesteuert werden kann
+- node-js-api anbieten sodass die webpack/babel-config verfügbar ist und man leicht Anpassungen vornehmen kann mit eigener config
+  - webpack-cli und webpack-dev-server muss dann selbst hinzugefügt werden um es entsprechend zu nutzen

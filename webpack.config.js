@@ -17,8 +17,8 @@ const isDev = process.env.NODE_ENV === 'development';
 module.exports = {
   entry: [path.join(__dirname, 'src', 'index.tsx')],
   output: {
-    filename: isDev ? '[name].js' : '[name].[contenthash:8].js',
-    chunkFilename: isDev ? '[id].js' : '[id].[contenthash:8].js',
+    filename: isDev ? 'js/[name].js' : 'js/[name].[contenthash:8].js',
+    chunkFilename: isDev ? 'js/[id].js' : 'js/[id].[contenthash:8].js',
     path: path.join(__dirname, '/dist'),
     pathinfo: isDev
   },
