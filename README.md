@@ -252,7 +252,6 @@ Jest is translated via [babel-jest](https://github.com/facebook/jest/tree/master
 | moduleFileExtensions         | test these extensions for `import` or `require`, corresponds to `resolve.extensions` in `webpack.config.js`                      |
 | moduleNameMapper             | mock static assets (img, CSS) see [jest-doku - Handling Static Assets](https://jestjs.io/docs/en/webpack#handling-static-assets) |
 | transform                    | pass every file through babel                                                                                                    |
-| testURL                      | only a fix for current [issue#2304](https://github.com/jsdom/jsdom/issues/2304)                                                  |
 
 ### jest-enzyme
 

@@ -13,6 +13,4 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
-  // FIXES:
-  testURL: 'http://localhost/', // see https://github.com/jsdom/jsdom/issues/2304
 };
