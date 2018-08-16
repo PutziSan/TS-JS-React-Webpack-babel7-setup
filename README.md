@@ -50,14 +50,21 @@ yarn
   - [react-hot-loader-setup](#react-hot-loader-setup)
 - [TypeScript](#typescript)
   - [`tsconfig.json`](#tsconfigjson)
-  - [typescript-dependencies](#typescript-dependencies)
 - [npm-/yarn-scripts](#npm-yarn-scripts)
   - [`yarn start`](#yarn-start)
     - [`yarn start:debug`](#yarn-startdebug)
   - [`yarn build`](#yarn-build)
   - [`yarn test`](#yarn-test)
   - [npm-scripts-dependencies](#npm-scripts-dependencies)
-- [git-utilities](#git-utilities)
+- [development-utilities](#development-utilities)
+  - [ESLint](#eslint)
+    - [ESLint-settings](#eslint-settings)
+    - [ESLint-dependencies](#eslint-dependencies)
+  - [TSLint](#tslint)
+  - [TSLint-settings](#tslint-settings)
+    - [TSLint-Dependencies](#tslint-dependencies)
+  - [Prettier](#prettier)
+  - [git pre-commit-hooks](#git-pre-commit-hooks)
 - [overwiev dependencies and devDependencies](#overwiev-dependencies-and-devdependencies)
   - [dependencies](#dependencies)
   - [devDependencies](#devdependencies)
@@ -160,23 +167,24 @@ I would not recommend the use of babel-polyfill since:
 
 ## webpack
 
-[webpack](https://webpack.js.org/) is bundler and development server. It is set by `webpack.config.js`.
-
-performance => https://github.com/webpack/docs/wiki/build-performance + https://webpack.js.org/guides/build-performance/
+[webpack](https://webpack.js.org/) is our bundler and development-server. It is configured via `webpack.config.js`.
 
 ### `webpack.config.js`
 
-| config                                                                                              | description                                                                                                                                                                                                                                                                                                                                                          |
-| --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`output.chunkFilename`](https://webpack.js.org/configuration/output/#output-chunkfilename)         | chunks are generated when using JavaScripts [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#Dynamic_Imports), see [webpack-documentation](https://webpack.js.org/guides/code-splitting/#dynamic-imports)                                                                                                       |
-| [`output.pathinfo`](https://webpack.js.org/configuration/output/#output-pathinfo)                   | `true` for development cause for logs and errors the correct filename will be displayed                                                                                                                                                                                                                                                                              |
-| [mode](https://webpack.js.org/concepts/mode/)                                                       | sets default-plugins (siehe link) and replaces NODE_ENV to production/development, [see webpack#optimization](https://webpack.js.org/configuration/optimization/) to check what the `production`-mode does                                                                                                                                                           |
-| [devtool](https://webpack.js.org/configuration/devtool/)                                            | defines how source-maps are written, `eval` gives best performance, but incorrect line numbers, for our project `eval-source-map` is the best compromise between correct line numbers and performance                                                                                                                                                                |
-| [resolve.symlinks](https://webpack.js.org/configuration/resolve/#resolve-symlinks)                  | defaults to `true`, if your project lives in a mono-repository via [lerna](https://github.com/lerna/lerna) and/or [yarn workspaces](https://yarnpkg.com/lang/en/docs/workspaces/), [it is possible that you have to toggle this flag to `false`](https://github.com/babel/babel-loader/issues/149#issuecomment-320581223)                                            |
-| [module](https://webpack.js.org/configuration/module/)                                              | 1. runs babel for every file (see [more babel-dependencies](#next-babel-dependencies)) 2. we can import static files (img/pdf), which are converted to an url and added to the bundle as an external file [see webpack-dependencies#file-loader](#webpack-dependencies)                                                                                              |
-| [devServer](https://webpack.js.org/configuration/dev-server/)                                       | [`hot: true`](https://webpack.js.org/guides/hot-module-replacement/) see [react-hot-loader](#react-hot-loader); `contentBase: 'public'` so the dev-server recognizes the static assets which are in `/public`                                                                                                                                                        |
-| [optimization.minimizer](https://webpack.js.org/configuration/optimization/#optimization-minimizer) | set explicit, cause the default-config via [mode](https://webpack.js.org/concepts/mode/) does not remove comments                                                                                                                                                                                                                                                    |
-| [plugins](https://webpack.js.org/plugins/)                                                          | [`webpack.EnvironmentPlugin`](https://webpack.js.org/plugins/environment-plugin/): see [Environment-variables](#environment-variables)<br />[`webpack.HotModuleReplacementPlugin`](https://webpack.js.org/plugins/hot-module-replacement-plugin/) see [react-hot-loader](#react-hot-loader)<br />see [webpack-dependencies](#webpack-dependencies) for other plugins |
+| config                                                                                              | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [entry](https://webpack.js.org/concepts/entry-points/)                                              | An object where the key represents the output-name of the generated js-file (this will applied to `[name]` in [`output.filename`](https://webpack.js.org/configuration/output/#output-filename)) and the value is the location of your entry-point, see [Entry Points - object-syntax (webpack-documentation)](https://webpack.js.org/concepts/entry-points/#object-syntax)                                                                                                                                             |
+| [`output.filename`](https://webpack.js.org/configuration/output/#output-filename)                   | `js/` is used to collect all js-files in the `js`-sub-dir, [see this discussion](https://github.com/webpack/webpack/issues/1189#issuecomment-114992043) <br />see [caching of your assets](#caching-of-your-assets) for information about `[contenthash:8]`                                                                                                                                                                                                                                                             |
+| [`output.path`](https://webpack.js.org/configuration/output/#output-path)                           | The folder specified here is used as the target where it should output your bundles, assets and anything else you bundle or load with webpack.<br />If you want to collect your js-files in a single directory use [`output.filename`](https://webpack.js.org/configuration/output/#output-filename) (see above)                                                                                                                                                                                                        |
+| [`output.chunkFilename`](https://webpack.js.org/configuration/output/#output-chunkfilename)         | chunks are generated when using JavaScripts [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#Dynamic_Imports), see [webpack-documentation](https://webpack.js.org/guides/code-splitting/#dynamic-imports)                                                                                                                                                                                                                                                          |
+| [`output.publicPath`](https://webpack.js.org/configuration/output/#output-publicpath)               | It is important that you set `publicPath` with a trailing slash so that the paths are not set relative to the current route (note that the default value is an empty string (`""`)). For example, the ([html-webpack-plugin](https://github.com/jantimon/html-webpack-plugin)) would then insert `<script src="main.js">` and your browser would search for `main.js` relative to the current route, but we want `<script src="/main.js">` (note the leading slash) so that the JS file is always searched in the root. |
+| [mode](https://webpack.js.org/concepts/mode/)                                                       | sets default-plugins (siehe link) and replaces NODE_ENV to production/development, [see webpack#optimization](https://webpack.js.org/configuration/optimization/) to check what the `production`-mode does                                                                                                                                                                                                                                                                                                              |
+| [devtool](https://webpack.js.org/configuration/devtool/)                                            | defines how source-maps are written, `eval` gives best performance, but incorrect line numbers, for our project `eval-source-map` is the best compromise between correct line numbers and performance                                                                                                                                                                                                                                                                                                                   |
+| [resolve.symlinks](https://webpack.js.org/configuration/resolve/#resolve-symlinks)                  | defaults to `true`, if your project lives in a mono-repository via [lerna](https://github.com/lerna/lerna) and/or [yarn workspaces](https://yarnpkg.com/lang/en/docs/workspaces/), [it is possible that you have to toggle this flag to `false`](https://github.com/babel/babel-loader/issues/149#issuecomment-320581223)                                                                                                                                                                                               |
+| [module](https://webpack.js.org/configuration/module/)                                              | 1. runs babel for every file (see [more babel-dependencies](#next-babel-dependencies)) 2. we can import static files (img/pdf), which are converted to an url and added to the bundle as an external file [see webpack-dependencies#file-loader](#webpack-dependencies)                                                                                                                                                                                                                                                 |
+| [devServer](https://webpack.js.org/configuration/dev-server/)                                       | [`hot: true`](https://webpack.js.org/guides/hot-module-replacement/) see [react-hot-loader](#react-hot-loader); `contentBase: 'public'` so the dev-server recognizes the static assets which are in `/public`                                                                                                                                                                                                                                                                                                           |
+| [optimization.minimizer](https://webpack.js.org/configuration/optimization/#optimization-minimizer) | set explicit, cause the default-config via [mode](https://webpack.js.org/concepts/mode/) does not remove comments                                                                                                                                                                                                                                                                                                                                                                                                       |
+| [plugins](https://webpack.js.org/plugins/)                                                          | [`webpack.EnvironmentPlugin`](https://webpack.js.org/plugins/environment-plugin/): see [Environment-variables](#environment-variables)<br />[`webpack.HotModuleReplacementPlugin`](https://webpack.js.org/plugins/hot-module-replacement-plugin/) see [react-hot-loader](#react-hot-loader)<br />see [webpack-dependencies](#webpack-dependencies) for other plugins                                                                                                                                                    |
 
 ### css-configuration
 
@@ -201,6 +209,8 @@ setup:
 > during development you [should not enable any hashing of your filenames](https://github.com/webpack/webpack-dev-server/issues/377#issuecomment-241258405) (This can be neglected for CSS-files via [mini-css-extract-plugin](https://github.com/webpack-contrib/mini-css-extract-plugin#long-term-caching) as it is only used in production anyway)
 
 Have a look at [webpacks caching-guide](https://webpack.js.org/guides/caching/) for more information.
+
+> If you have build-performance concerns, you should start with [webpacks build-performance-article on github](https://github.com/webpack/docs/wiki/build-performance) and the [build-performance-section on their website](https://webpack.js.org/guides/build-performance/) to learn what you can optimize.
 
 ### Environment-Variables
 
@@ -277,7 +287,7 @@ Since Babel7 the integration with TypeScript is much easier, because Babel under
 
 ## TypeScript
 
-[TypeScript](https://www.typescriptlang.org/) is build via babels [@babel/preset-typescript](https://new.babeljs.io/docs/en/next/babel-preset-typescript.html).
+[TypeScript](https://www.typescriptlang.org/) ([TypeScript GitHub-repo](https://github.com/Microsoft/TypeScript)) is build via babels [@babel/preset-typescript](https://new.babeljs.io/docs/en/next/babel-preset-typescript.html).
 
 ### `tsconfig.json`
 
@@ -292,15 +302,6 @@ See [TS-doku#compiler-options](https://www.typescriptlang.org/docs/handbook/comp
 | [lib](https://www.typescriptlang.org/docs/handbook/compiler-options.html) (search for `--lib`)  | `["es6", "dom"]` | "List of library files to be included in the compilation."                                                                                                 |
 | sourceMap                                                                                       | `false`          | since webpack writes the sourcemaps for us it can be neglected by TS, see [`webpack.config.js`](#webpack-config-js)                                        |
 | allowJs                                                                                         | `true`           | allows import and export of JS without compiler-errors                                                                                                     |
-
-### typescript-dependencies
-
-| package                                                                        | description                                                 |
-| ------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| [typescript](https://github.com/Microsoft/TypeScript)                          | TS-core                                                     |
-| [tslint](https://github.com/palantir/tslint)                                   | linting for your TS-files, you should enable it in your IDE |
-| [tslint-config-prettier](https://github.com/alexjoverm/tslint-config-prettier) | "Use tslint with prettier without any conflict"             |
-| [tslint-react](https://github.com/palantir/tslint-react)                       | "Lint rules related to React & JSX for TSLint."             |
 
 ## npm-/yarn-scripts
 
@@ -338,9 +339,52 @@ executes your defined tests in `/tests`, using your config in `/jest.config.js`,
 | [ncp](https://github.com/AvianFlu/ncp)               | copy files platform-agnostic via node       |
 | [rimraf](https://github.com/isaacs/rimraf)           | remove files platform-agnostic via node     |
 
-## git-utilities
+## development-utilities
 
-Via [husky](https://github.com/typicode/husky) and[lint-staged](https://github.com/okonet/lint-staged) every changed `*.{ts,tsx,js,js,jsx,json,css,md}` file is formatted uniformly before a commit using [prettier](https://github.com/prettier/prettier), also a `tslint --fix` runs for `*.{ts,tsx}` before the changed files are re-added.
+### ESLint
+
+[ESLint](https://eslint.org/) is a linter for your JS-Code. You can use it [via CLI](https://eslint.org/docs/user-guide/command-line-interface) or [integrate it into your development cycle](https://eslint.org/docs/user-guide/integrations).
+
+#### ESLint-settings
+
+TODO
+
+#### ESLint-dependencies
+
+| package                                                                                                     | description                                                                                                                                                                                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [eslint](https://github.com/eslint/eslint)                                                                  | see [ESLint](#ESLint)                                                                                                                                                                                                                                                                                                      |
+| [eslint-config-airbnb](https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb)      | most commonly used lint-rule-set by Airbnb, this automatically includes following plugins: [eslint-plugin-import](https://github.com/benmosher/eslint-plugin-import), [eslint-plugin-jsx-a11y](https://github.com/evcohen/eslint-plugin-jsx-a11y), [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react) |
+| [eslint-plugin-import](https://github.com/benmosher/eslint-plugin-import)                                   | "ESLint plugin with rules that help validate proper imports."                                                                                                                                                                                                                                                              |
+| [eslint-import-resolver-node](https://github.com/benmosher/eslint-plugin-import/tree/master/resolvers/node) | addition to[eslint-plugin-import](https://github.com/benmosher/eslint-plugin-import) to resolve file extensions other than `.js` (e.g. necessary to import `.ts`/`.tsx` files)                                                                                                                                             |
+| [eslint-plugin-jsx-a11y](https://github.com/evcohen/eslint-plugin-jsx-a11y)                                 | "Static AST checker for accessibility rules on JSX elements."                                                                                                                                                                                                                                                              |
+| [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react)                                     | "React specific linting rules for ESLint"                                                                                                                                                                                                                                                                                  |
+| [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier)                                | used via the [Recommended Configuration](https://github.com/prettier/eslint-plugin-prettier#recommended-configuration), so it will also extend the rules via [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier)                                                                                  |
+| [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier)                                | Turns off rules that might conflict with Prettier.                                                                                                                                                                                                                                                                         |
+
+### TSLint
+
+[TSLint](https://palantir.github.io/tslint/) is a [linting tool](<https://en.wikipedia.org/wiki/Lint_(software)>) that checks your TypeScript-Code [via command-line](https://palantir.github.io/tslint/usage/cli/). However, the integration into your development cycle is more comfortable (for example as integration into your IDE like WebStorm or VS code) so that the code is checked quasi "as-you-type", see [TSLints "Third-Party Tools"](https://palantir.github.io/tslint/usage/third-party-tools/).
+
+### TSLint-settings
+
+TODO
+
+#### TSLint-Dependencies
+
+| package                                                                        | description                                     |
+| ------------------------------------------------------------------------------ | ----------------------------------------------- |
+| [tslint](https://github.com/palantir/tslint)                                   | see [TSLint](#tslint)                           |
+| [tslint-config-prettier](https://github.com/alexjoverm/tslint-config-prettier) | "Use tslint with prettier without any conflict" |
+| [tslint-react](https://github.com/palantir/tslint-react)                       | "Lint rules related to React & JSX for TSLint." |
+
+### Prettier
+
+[Prettier](https://prettier.io/) ([prettier github-repo](https://github.com/prettier/prettier)) is a strict code-formatter that [supports many different languages](https://prettier.io/docs/en/language-support.html). Prettier [always tries to guarantee the same code style](https://prettier.io/docs/en/why-prettier.html) and does not take initial formatting into account. This guarantees that even if several people work on a project, the code style remains consistent. The [options to customize the output](https://prettier.io/docs/en/configuration.html) are limited.
+
+### git pre-commit-hooks
+
+Via [husky](https://github.com/typicode/husky) and[lint-staged](https://github.com/okonet/lint-staged) every changed `*.{ts,tsx,js,js,jsx,json,css,md}` file is formatted uniformly before a commit using [Prettier](#prettier), also a `tslint --fix` runs for `*.{ts,tsx}` and a `eslint --fix` for `*.{js,jsx}` before the changed files are re-added.
 
 The setup is according to [lint-staged's documentation](https://github.com/okonet/lint-staged#installation-and-setup), but husky is set up via [`/husky.config.js`](https://github.com/typicode/husky#upgrading-from-014) and lint via [`dev/.lintstagedrc`](https://github.com/okonet/lint-staged#configuration). (`package.json` should not be stuffed senselessly).
 
@@ -379,9 +423,6 @@ The `@types/...`-devDependencies are omitted to explain, have a look at the [Def
 | [react-hot-loader](https://github.com/gaearon/react-hot-loader)                                                            | [further babel-dependencies](#further-babel-dependencies) + [react-hot-loader](#react-hot-loader)                                             |
 | [babel-plugin-dynamic-import-node](https://github.com/airbnb/babel-plugin-dynamic-import-node)                             | [`test`-specific options](#test-specific-options)                                                                                             |
 | [typescript](https://github.com/Microsoft/TypeScript)                                                                      | [TypeScript](#typescript)                                                                                                                     |
-| [tslint](https://github.com/palantir/tslint)                                                                               | [typescript-dependencies](#typescript-dependencies)                                                                                           |
-| [tslint-config-prettier](https://github.com/alexjoverm/tslint-config-prettier)                                             | [typescript-dependencies](#typescript-dependencies)                                                                                           |
-| [tslint-react](https://github.com/palantir/tslint-react)                                                                   | [typescript-dependencies](#typescript-dependencies)                                                                                           |
 | [webpack](https://github.com/webpack/webpack)                                                                              | [webpack](#webpack)                                                                                                                           |
 | [webpack-cli](https://github.com/webpack/webpack-cli)                                                                      | [webpack-dependencies](#webpack-dependencies) + [`yarn build`](#yarn-build)                                                                   |
 | [webpack-dev-server](https://github.com/webpack/webpack-dev-server)                                                        | [webpack-dependencies](#webpack-dependencies) + [`yarn start`](#yarn-start)                                                                   |
@@ -400,9 +441,20 @@ The `@types/...`-devDependencies are omitted to explain, have a look at the [Def
 | [jest-enzyme](https://github.com/FormidableLabs/enzyme-matchers/tree/master/packages/jest-enzyme)                          | [jest-enzyme](#jest-enzyme)                                                                                                                   |
 | [enzyme](https://github.com/airbnb/enzyme)                                                                                 | [jest-dependencies](#jest-dependencies) + [jest-enzyme](#jest-enzyme)                                                                         |
 | [enzyme-adapter-react-16](https://github.com/airbnb/enzyme/blob/master/docs/installation/react-16.md)                      | [jest-dependencies](#jest-dependencies) + [jest-enzyme](#jest-enzyme)                                                                         |
-| [husky](https://github.com/typicode/husky)                                                                                 | [git-utilities](#git-utilities)                                                                                                               |
-| [lint-staged](https://github.com/okonet/lint-staged)                                                                       | [git-utilities](#git-utilities)                                                                                                               |
-| [prettier](https://github.com/prettier/prettier)                                                                           | [git-utilities](#git-utilities)                                                                                                               |
+| [eslint](https://github.com/eslint/eslint)                                                                                 | [ESLint](#eslint)                                                                                                                             |
+| [eslint-config-airbnb](https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb)                     | [ESLint-dependencies](#eslint-dependencies)                                                                                                   |
+| [eslint-plugin-import](https://github.com/benmosher/eslint-plugin-import)                                                  | [ESLint-dependencies](#eslint-dependencies)                                                                                                   |
+| [eslint-import-resolver-node](https://github.com/benmosher/eslint-plugin-import/tree/master/resolvers/node)                | [ESLint-dependencies](#eslint-dependencies)                                                                                                   |
+| [eslint-plugin-jsx-a11y](https://github.com/evcohen/eslint-plugin-jsx-a11y)                                                | [ESLint-dependencies](#eslint-dependencies)                                                                                                   |
+| [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react)                                                    | [ESLint-dependencies](#eslint-dependencies)                                                                                                   |
+| [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier)                                               | [ESLint-dependencies](#eslint-dependencies)                                                                                                   |
+| [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier)                                               | [ESLint-dependencies](#eslint-dependencies)                                                                                                   |
+| [tslint](https://github.com/palantir/tslint)                                                                               | [TSLint](#tslint)                                                                                                                             |
+| [tslint-config-prettier](https://github.com/alexjoverm/tslint-config-prettier)                                             | [TSLint-Dependencies](#tslint-dependencies)                                                                                                   |
+| [tslint-react](https://github.com/palantir/tslint-react)                                                                   | [TSLint-Dependencies](#tslint-dependencies)                                                                                                   |
+| [husky](https://github.com/typicode/husky)                                                                                 | [git-utilities](#git-pre-commit-hooks)                                                                                                        |
+| [lint-staged](https://github.com/okonet/lint-staged)                                                                       | [git-utilities](#git-pre-commit-hooks)                                                                                                        |
+| [prettier](https://github.com/prettier/prettier)                                                                           | [git-utilities](#git-pre-commit-hooks)                                                                                                        |
 
 ## To Observe
 
@@ -416,3 +468,13 @@ The `@types/...`-devDependencies are omitted to explain, have a look at the [Def
 - das auslagern mit all den dependencies und doku in ein projekt was übe cmd-line angesteuert werden kann
 - node-js-api anbieten sodass die webpack/babel-config verfügbar ist und man leicht Anpassungen vornehmen kann mit eigener config
   - webpack-cli und webpack-dev-server muss dann selbst hinzugefügt werden um es entsprechend zu nutzen
+- mono-repo dafür erstellen,
+  - single packages für (erster spontan-entwurf):
+    - babel (create-script für standard-babel-objekt)
+    - webpack (create-script für config)
+    - eslint
+    - tslint
+  - zu überlegen:
+    - jest (config auslagern?)
+    - TypeScript (tsconfig)
+  - die einzelnen projekte exportieren jeweils die configs, wenn man etwas anpassen möchte sollte das einzelne projekt als dependency mit genutzt werden sodass man das script selbst anpassen kann auf grundlage des config-objektes

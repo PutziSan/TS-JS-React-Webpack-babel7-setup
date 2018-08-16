@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 const path = require('path');
 const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
@@ -20,7 +21,7 @@ module.exports = {
     filename: isDev ? 'js/[name].js' : 'js/[name].[contenthash:8].js',
     chunkFilename: isDev ? 'js/[id].js' : 'js/[id].[contenthash:8].js',
     path: path.join(__dirname, '/dist'),
-    pathinfo: isDev
+    publicPath: '/'
   },
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'eval' : 'source-map',
@@ -55,7 +56,8 @@ module.exports = {
     hot: true,
     contentBase: path.join(__dirname, 'public'),
     headers: { 'Access-Control-Allow-Origin': '*' },
-    historyApiFallback: true
+    historyApiFallback: true,
+    publicPath: '/'
   },
   optimization: {
     minimizer: [
