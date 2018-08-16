@@ -12,12 +12,12 @@ interface OtherViewState {
 
 export class OtherView extends React.Component<OtherViewProps, OtherViewState> {
   state = {
-    counter: 0
+    counter: 0,
   };
 
   handleClick = () =>
     this.setState(({ counter }) => ({
-      counter: counter + 1
+      counter: counter + 1,
     }));
 
   render() {

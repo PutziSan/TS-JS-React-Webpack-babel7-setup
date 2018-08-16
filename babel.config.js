@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const reactPreset = require('@babel/preset-react').default;
 const typescriptPreset = require('@babel/preset-typescript').default;
 const envPreset = require('@babel/preset-env').default;
@@ -26,12 +27,12 @@ module.exports = api => {
         {
           modules: isTest ? 'commonjs' : false,
           targets: {
-            browsers: ['>0.25%']
-          }
-        }
+            browsers: ['>0.25%'],
+          },
+        },
       ],
       [reactPreset, { useBuiltIns: true, development: !isProd }],
-      typescriptPreset
+      typescriptPreset,
     ].filter(Boolean),
     plugins: [
       isDev && reactHotLoaderPlugin,
@@ -40,8 +41,8 @@ module.exports = api => {
       isTest ? dynamicImportForNodePlugin : dynamicImportSyntaxPlugin,
       isProd && [
         runtimeTransformPlugin,
-        { useESModules: true, regenerator: false, corejs: false }
-      ]
-    ].filter(Boolean)
+        { useESModules: true, regenerator: false, corejs: false },
+      ],
+    ].filter(Boolean),
   };
 };

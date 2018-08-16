@@ -1,10 +1,10 @@
 module.exports = {
   uglifyOptions: {
     output: {
-      comments: false
-    }
+      comments: false,
+    },
   },
   parallel: true,
   cache: true,
-  sourceMap: true
+  sourceMap: true,
 };

@@ -17,7 +17,7 @@ export const JsView = props => (
           ...Object.assign({}, { a: 'a', b: 'b' }, { a: 'c', c: 'c' }),
           c: 'd',
           d: 'd',
-          staticProp
+          staticProp,
         },
         null,
         2
@@ -29,5 +29,5 @@ export const JsView = props => (
 );
 
 JsView.propTypes = {
-  name: PropTypes.string.isRequired
+  name: PropTypes.string.isRequired,
 };

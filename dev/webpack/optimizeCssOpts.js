@@ -1,3 +1,3 @@
 module.exports = {
-  cssProcessorOptions: { discardComments: { removeAll: true } }
+  cssProcessorOptions: { discardComments: { removeAll: true } },
 };

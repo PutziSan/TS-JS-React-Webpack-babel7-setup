@@ -22,12 +22,12 @@ const Loading: React.SFC<reactLoadable.LoadingComponentProps> = props =>
 
 const LoadAppView = reactLoadable({
   loader: () => import('./AsyncTest').then(l => l.AsyncTest),
-  loading: Loading
+  loading: Loading,
 });
 
 class InnerApp extends React.Component<{}, AppViewState> {
   state = {
-    start: false
+    start: false,
   };
 
   toggleStart = () => this.setState({ start: !this.state.start });
