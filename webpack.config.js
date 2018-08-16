@@ -21,34 +21,34 @@ module.exports = {
     filename: isDev ? 'js/[name].js' : 'js/[name].[contenthash:8].js',
     chunkFilename: isDev ? 'js/[id].js' : 'js/[id].[contenthash:8].js',
     path: path.join(__dirname, '/dist'),
-    publicPath: '/'
+    publicPath: '/',
   },
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'eval' : 'source-map',
   resolve: {
     symlinks: false,
-    extensions: ['.ts', '.tsx', '.js', '.jsx']
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
   module: {
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
-        loader: babelLoader
+        loader: babelLoader,
       },
       {
         test: /\.css$/,
-        use: [isDev ? styleLoader : MiniCssExtractPlugin.loader, cssLoader]
+        use: [isDev ? styleLoader : MiniCssExtractPlugin.loader, cssLoader],
       },
       {
         test: /\.(jpe?g|png|gif|svg|woff|woff2|eot|ttf|pdf)$/i,
         loader: fileLoader,
         options: {
           name: isDev ? '[name].[ext]' : '[name].[hash:8].[ext]',
-          outputPath: 'assets/'
-        }
-      }
-    ]
+          outputPath: 'assets/',
+        },
+      },
+    ],
   },
   devServer: {
     host: 'localhost',
@@ -57,22 +57,22 @@ module.exports = {
     contentBase: path.join(__dirname, 'public'),
     headers: { 'Access-Control-Allow-Origin': '*' },
     historyApiFallback: true,
-    publicPath: '/'
+    publicPath: '/',
   },
   optimization: {
     minimizer: [
       new UglifyJsPlugin(require('./dev/webpack/ugilfyJsPluginOptions')),
-      new OptimizeCSSAssetsPlugin(require('./dev/webpack/optimizeCssOpts'))
-    ]
+      new OptimizeCSSAssetsPlugin(require('./dev/webpack/optimizeCssOpts')),
+    ],
   },
   plugins: [
     new webpack.EnvironmentPlugin(Object.keys(process.env)),
     new HTMLWebpackPlugin({
       template: path.join(__dirname, 'src', 'index.html'),
       filename: 'index.html',
-      inject: 'body'
+      inject: 'body',
     }),
     isDev && new webpack.HotModuleReplacementPlugin(),
-    !isDev && new MiniCssExtractPlugin(require('./dev/webpack/cssExtractOpts'))
-  ].filter(Boolean)
+    !isDev && new MiniCssExtractPlugin(require('./dev/webpack/cssExtractOpts')),
+  ].filter(Boolean),
 };
