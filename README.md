@@ -61,7 +61,7 @@ yarn
     - [ESLint-settings](#eslint-settings)
     - [ESLint-dependencies](#eslint-dependencies)
   - [TSLint](#tslint)
-  - [TSLint-settings](#tslint-settings)
+    - [TSLint-settings](#tslint-settings)
     - [TSLint-Dependencies](#tslint-dependencies)
   - [Prettier](#prettier)
   - [git pre-commit-hooks](#git-pre-commit-hooks)
@@ -366,7 +366,7 @@ TODO
 
 [TSLint](https://palantir.github.io/tslint/) is a [linting tool](<https://en.wikipedia.org/wiki/Lint_(software)>) that checks your TypeScript-Code [via command-line](https://palantir.github.io/tslint/usage/cli/). However, the integration into your development cycle is more comfortable (for example as integration into your IDE like WebStorm or VS code) so that the code is checked quasi "as-you-type", see [TSLints "Third-Party Tools"](https://palantir.github.io/tslint/usage/third-party-tools/).
 
-### TSLint-settings
+#### TSLint-settings
 
 TODO
 
