@@ -64,6 +64,8 @@ module.exports = {
       new UglifyJsPlugin(require('./dev/webpack/ugilfyJsPluginOptions')),
       new OptimizeCSSAssetsPlugin(require('./dev/webpack/optimizeCssOpts')),
     ],
+    // https://twitter.com/wSokra/status/969679223278505985 + https://webpack.js.org/configuration/optimization/#optimization-runtimechunk
+    runtimeChunk: true,
   },
   plugins: [
     new webpack.EnvironmentPlugin(Object.keys(process.env)),

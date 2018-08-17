@@ -477,3 +477,12 @@ The `@types/...`-devDependencies are omitted to explain, have a look at the [Def
     - jest (config auslagern?)
     - TypeScript (tsconfig)
   - die einzelnen projekte exportieren jeweils die configs, wenn man etwas anpassen möchte sollte das einzelne projekt als dependency mit genutzt werden sodass man das script selbst anpassen kann auf grundlage des config-objektes
+
+## TODO
+
+check + document:
+
+- [optimization.splitChunks](https://webpack.js.org/plugins/split-chunks-plugin/#splitchunks-maxasyncrequests) => sollte man machen habe aktuell mit paar werten rumgespielt, zb ist aktuell "all" anscheinend nicht so geil, maxSize sinnvoll mit http/2
+- [runtimechunk](https://webpack.js.org/configuration/optimization/#optimization-runtimechunk) sollte true sein da sonst bei eine änderung quasi jedes chunk einen neuen hash bekommt und nichts gecached werden kann, mit runtimeChunk werdend ie hash werte hier rein geschrieben sodass nicht geänderte files gleich bleiben
+
+gut info auch der Medium-Artikel [webpack 4: Code Splitting, chunk graph and the splitChunks optimization](https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366)
