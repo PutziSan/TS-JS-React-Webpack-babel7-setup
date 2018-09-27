@@ -64,8 +64,13 @@ module.exports = {
       new UglifyJsPlugin(require('./dev/webpack/ugilfyJsPluginOptions')),
       new OptimizeCSSAssetsPlugin(require('./dev/webpack/optimizeCssOpts')),
     ],
+    // tested automatic vendor-splitting via splitChunks [optimization.splitChunks](https://webpack.js.org/plugins/split-chunks-plugin/#splitchunks-maxasyncrequests)
+    // but its currently not that good (explicit code-splitting may be ebther ATM)
+    // good is `maxSize` https://webpack.js.org/plugins/split-chunks-plugin/#splitchunks-maxsize necessary with http/2, but currently it causes random bugs for real-world-app (apoly)
+
     // https://twitter.com/wSokra/status/969679223278505985 + https://webpack.js.org/configuration/optimization/#optimization-runtimechunk
-    runtimeChunk: true,
+    // https://twitter.com/wSokra/status/969679223278505985 + https://webpack.js.org/configuration/optimization/#optimization-runtimechunk
+    runtimeChunk: true, // => runtimeChunk for longTermCaching so js-files have not to include the other chunks and not changed chunks could use the cached var
   },
   plugins: [
     new webpack.EnvironmentPlugin(Object.keys(process.env)),

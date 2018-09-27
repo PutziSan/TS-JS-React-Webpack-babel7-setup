@@ -4,6 +4,8 @@ import { OtherView } from './OtherView';
 
 const staticProp = 'my static value';
 
+const testArr = [1, 2];
+
 export const JsView = props => (
   <div>
     <h3>This is a JS-Component</h3>
@@ -15,6 +17,7 @@ export const JsView = props => (
       {JSON.stringify(
         {
           ...Object.assign({}, { a: 'a', b: 'b' }, { a: 'c', c: 'c' }),
+          arr: [...testArr, 3],
           c: 'd',
           d: 'd',
           staticProp,
