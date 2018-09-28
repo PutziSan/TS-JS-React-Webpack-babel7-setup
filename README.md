@@ -465,6 +465,7 @@ The `@types/...`-devDependencies are omitted to explain, have a look at the [Def
   - currently added `collapse_vars: false` in `dev/webpack/ugilfyJsPluginOptions.js`
   - zum beispiel für komplettes apoly-projekt (ca 5MiB bundled) war der Unterschied ~3KiB => VERNACHLÄSSIGBAR
   - [CRA](https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/config/webpack.config.prod.js#L123-L159) nutzt [terser](https://github.com/terser-js/terser) + [webpack-terser](https://github.com/webpack-contrib/terser-webpack-plugin), für apoly testweise code eingebaut: terser ist langsamer (112s vs 81s) und schlechter (20188KiB vs 19846KiB, diff 342KiB) als uglify mit `collapse_vars: false`
+- Ist babel-preset-env wirklich notwendig, bzw vllt mit einer neueren browserslist-config in preset-env (zb ">5%"), um sicherzugehen dass nicht jeder müll für IE11 kompiliert wird, in dem fall muss auch wider auf terser anstatt uglifyj umgestiegen werden da uglifyjs nur es5 kann
 
 ## (intern): Idee das Projekt von der Nutzung ähnlich wie CRA zu machen:
 
