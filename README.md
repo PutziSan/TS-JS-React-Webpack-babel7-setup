@@ -464,6 +464,7 @@ The `@types/...`-devDependencies are omitted to explain, have a look at the [Def
 - performance-regression with [`collapse_vars`](https://github.com/mishoo/UglifyJS2#compress-options) (uglify-js2) checken: [uglifyjs-issue](https://github.com/mishoo/UglifyJS2/issues/3174), [terser-issue](https://github.com/terser-js/terser/issues/50), [cra-issue](https://github.com/facebook/create-react-app/issues/5103#issuecomment-424903155)
   - currently added `collapse_vars: false` in `dev/webpack/ugilfyJsPluginOptions.js`
   - zum beispiel für komplettes apoly-projekt (ca 5MiB bundled) war der Unterschied ~3KiB => VERNACHLÄSSIGBAR
+  - [CRA](https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/config/webpack.config.prod.js#L123-L159) nutzt [terser](https://github.com/terser-js/terser) + [webpack-terser](https://github.com/webpack-contrib/terser-webpack-plugin), für apoly testweise code eingebaut: terser ist langsamer (112s vs 81s) und schlechter (20188KiB vs 19846KiB, diff 342KiB) als uglify mit `collapse_vars: false`
 
 ## (intern): Idee das Projekt von der Nutzung ähnlich wie CRA zu machen:
 
