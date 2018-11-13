@@ -1,6 +1,6 @@
 # TS-JS-React-Project via Webpack4 and babel7
 
-The project is actually only built with the latest Babel-features + Webpack4 + jest for unit-tests. It exists because I was not able to understand the configurations of other similar projects.
+The project is actually only built with the latest Babel-features + Webpack4 + jest for unit-tests.
 
 This documentation is not intended to show how to build a React application with this configuration, but to explain each unit and their meaning of the used configurations. I will try to document every config-line used for this setup.
 
