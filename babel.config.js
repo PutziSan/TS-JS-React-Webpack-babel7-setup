@@ -8,10 +8,10 @@ const objectSpreadTransformation = require('@babel/plugin-proposal-object-rest-s
   .default;
 const dynamicImportSyntaxPlugin = require('@babel/plugin-syntax-dynamic-import')
   .default;
-const runtimeTransformPlugin = require('@babel/plugin-transform-runtime')
-  .default;
 const reactHotLoaderPlugin = require('react-hot-loader/babel');
 const dynamicImportForNodePlugin = require('babel-plugin-dynamic-import-node');
+
+console.log('WAHAWEQWE');
 
 module.exports = api => {
   api.cache(() => process.env.NODE_ENV);
@@ -20,15 +20,16 @@ module.exports = api => {
   const isTest = process.env.NODE_ENV === 'test';
   const isProd = process.env.NODE_ENV === 'production';
 
+  console.log('ASDJQWEQ');
+  console.log(isTest ? 'test' : 'not');
+
   return {
     presets: [
-      !isDev && [
+      // reqrite import to require for jest-test
+      isTest && [
         envPreset,
         {
-          modules: isTest ? 'commonjs' : false,
-          targets: {
-            browsers: ['>0.25%'],
-          },
+          modules: 'commonjs',
         },
       ],
       [reactPreset, { useBuiltIns: true, development: !isProd }],
@@ -39,10 +40,6 @@ module.exports = api => {
       [classPropertiesPlugin, { loose: true }],
       [objectSpreadTransformation, { useBuiltIns: true }],
       isTest ? dynamicImportForNodePlugin : dynamicImportSyntaxPlugin,
-      isProd && [
-        runtimeTransformPlugin,
-        { useESModules: true, regenerator: false, corejs: false },
-      ],
     ].filter(Boolean),
   };
 };

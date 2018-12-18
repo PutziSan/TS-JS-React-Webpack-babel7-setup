@@ -2,11 +2,11 @@
 const path = require('path');
 const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const SizePlugin = require('size-plugin');
-const pgkJson = require('./package.json');
+const TerserPlugin = require('terser-webpack-plugin');
+const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 
 require('dotenv').config();
 
@@ -16,34 +16,34 @@ const styleLoader = require.resolve('style-loader');
 const cssLoader = require.resolve('css-loader');
 
 const isDev = process.env.NODE_ENV === 'development';
+const isProd = process.env.NODE_ENV === 'production';
 
-const vendors = Object.keys(pgkJson.dependencies);
+const vendors = [['react', 'react-dom']];
+
+function toRegexGrp(vendor) {
+  if (Array.isArray(vendor)) {
+    return `(?:${vendor.join('|')})`;
+  }
+
+  return vendor;
+}
 
 const vendorCacheGroups = {};
 
 vendors.forEach(vendor => {
   vendorCacheGroups[vendor] = {
-    test: new RegExp(`[\\\\/]node_modules[\\\\/]${vendor}[\\\\/]`),
+    test: new RegExp(`[\\\\/]node_modules[\\\\/]${toRegexGrp(vendor)}[\\\\/]`),
     chunks: 'initial',
-    name: vendor,
+    name: Array.isArray(vendor) ? vendor.join('-') : vendor,
     enforce: true,
   };
 });
-
-const otherVendors = {
-  test: new RegExp(
-    `[\\\\/]node_modules[\\\\/](?!(?:${vendors.join('|')})).*[\\\\/]`
-  ),
-  chunks: 'initial',
-  name: 'vendors',
-  enforce: true,
-};
 
 module.exports = {
   entry: [path.join(__dirname, 'src', 'index.tsx')],
   output: {
     filename: isDev ? 'js/[name].js' : 'js/[name].[contenthash:8].js',
-    chunkFilename: isDev ? 'js/[id].js' : 'js/[name].[contenthash:8].js',
+    chunkFilename: isDev ? 'js/[name].js' : 'js/[name].[contenthash:8].js',
     path: path.join(__dirname, '/dist'),
     publicPath: '/',
   },
@@ -85,14 +85,15 @@ module.exports = {
   },
   optimization: {
     minimizer: [
-      new UglifyJsPlugin(require('./dev/webpack/ugilfyJsPluginOptions')),
+      new TerserPlugin({
+        sourceMap: isProd,
+        terserOptions: { output: { comments: false } },
+      }),
       new OptimizeCSSAssetsPlugin(require('./dev/webpack/optimizeCssOpts')),
     ],
 
     splitChunks: {
-      minSize: 5000,
-      // cacheGroups: Object.assign({}, vendorCacheGroups, { otherVendors }),
-      cacheGroups: Object.assign({}, vendorCacheGroups, { otherVendors }),
+      cacheGroups: vendorCacheGroups,
     },
     // tested automatic vendor-splitting via splitChunks [optimization.splitChunks](https://webpack.js.org/plugins/split-chunks-plugin/#splitchunks-maxasyncrequests)
     // but its currently not that good (explicit code-splitting may be ebther ATM)
@@ -109,8 +110,9 @@ module.exports = {
       filename: 'index.html',
       inject: 'body',
     }),
+    new ScriptExtHtmlWebpackPlugin({ defaultAttribute: 'async' }),
     isDev && new webpack.HotModuleReplacementPlugin(),
-    !isDev && new MiniCssExtractPlugin(require('./dev/webpack/cssExtractOpts')),
-    !isDev && new SizePlugin(),
+    isProd && new MiniCssExtractPlugin(require('./dev/webpack/cssExtractOpts')),
+    isProd && new SizePlugin(),
   ].filter(Boolean),
 };

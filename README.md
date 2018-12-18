@@ -493,3 +493,37 @@ check + document:
   - [supportsStaticESM](https://github.com/babel/babel/pull/8520) : ist vielleicht auch nur ne interne option, sollte ich prüfen wenn die documentation bissel stabiler ist
 
 gut info auch der Medium-Artikel [webpack 4: Code Splitting, chunk graph and the splitChunks optimization](https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366)
+
+### code splitting per vendor
+
+größere chunks werden per bla erstellt und initial ans html hinzugefügt und mit script-ext-html-webpack-plugin asynchron geladen.
+
+Denk daran nicht einen generischen "vendor-chunk" zu machen, der alle restlichen node_mdoules beinhaltet, da ansonsten code-splitting nicht für die vendor-chunks funktioniert
+
+### code splitting per vendor
+
+mit dieser config probiert all vendors auszugliedern, allerdings durch [splitChunks.chunks](https://webpack.js.org/plugins/split-chunks-plugin/#splitchunks-chunks), wird es nicht sinnvoll gemacht, da einfach alles ausgegliedert wird und in die html-datei geschrieben wird. #laaame!
+
+```javascript
+const vendors = Object.keys(pgkJson.dependencies);
+
+const vendorCacheGroups = {};
+
+vendors.forEach(vendor => {
+  vendorCacheGroups[vendor] = {
+    test: new RegExp(`[\\\\/]node_modules[\\\\/]${vendor}[\\\\/]`),
+    chunks: 'async',
+    name: vendor,
+    enforce: true,
+  };
+});
+
+const otherVendors = {
+  test: new RegExp(
+    `[\\\\/]node_modules[\\\\/](?!(?:${vendors.join('|')})).*[\\\\/]`
+  ),
+  chunks: 'async',
+  name: 'vendors',
+  enforce: true,
+};
+```

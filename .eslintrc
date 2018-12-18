@@ -15,6 +15,7 @@
     "react/jsx-filename-extension": 0,
     "react/jsx-one-expression-per-line": 0,
     "prefer-destructuring": 0,
+    "arrow-body-style": 0,
     "prettier/prettier": [
       "error",
       {

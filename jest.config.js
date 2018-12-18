@@ -1,5 +1,7 @@
 const path = require('path');
 
+console.log('hi');
+
 module.exports = {
   // make sure to install an enzyme-adapter: https://github.com/FormidableLabs/enzyme-matchers/tree/master/packages/jest-environment-enzyme#readme
   setupTestFrameworkScriptFile: path.join(__dirname, 'dev', 'setupTests.js'),

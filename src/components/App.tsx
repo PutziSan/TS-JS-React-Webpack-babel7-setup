@@ -25,6 +25,8 @@ const LoadAppView = reactLoadable({
   loading: Loading,
 });
 
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 class InnerApp extends React.Component<{}, AppViewState> {
   state = {
     start: false,
@@ -32,11 +34,19 @@ class InnerApp extends React.Component<{}, AppViewState> {
 
   toggleStart = () => this.setState({ start: !this.state.start });
 
+  alertAfterTime = async () => {
+    await wait(1000);
+    alert('hi');
+  };
+
   render() {
     return (
       <ErrorBoundary>
         <div>
           <h1>42!</h1>
+          <button onClick={() => this.alertAfterTime()}>
+            alert with async
+          </button>
           <h2 className="app">import static assets (e.g. PNGs)</h2>
           <img
             alt="my"
