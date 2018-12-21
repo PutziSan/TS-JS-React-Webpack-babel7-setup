@@ -1,7 +1,5 @@
 const path = require('path');
 
-console.log('hi');
-
 module.exports = {
   // make sure to install an enzyme-adapter: https://github.com/FormidableLabs/enzyme-matchers/tree/master/packages/jest-environment-enzyme#readme
   setupTestFrameworkScriptFile: path.join(__dirname, 'dev', 'setupTests.js'),
@@ -13,6 +11,6 @@ module.exports = {
     '\\.(css|less)$': '<rootDir>/dev/__mocks__/styleMock.js',
   },
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)?$': 'babel-jest',
   },
 };

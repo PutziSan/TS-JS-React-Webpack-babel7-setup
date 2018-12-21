@@ -1,8 +1,10 @@
 /* eslint-disable global-require */
 const path = require('path');
+const glob = require('glob');
 const webpack = require('webpack');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const PurgecssPlugin = require('purgecss-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const SizePlugin = require('size-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -43,7 +45,7 @@ module.exports = {
   entry: [path.join(__dirname, 'src', 'index.tsx')],
   output: {
     filename: isDev ? 'js/[name].js' : 'js/[name].[contenthash:8].js',
-    chunkFilename: isDev ? 'js/[name].js' : 'js/[name].[contenthash:8].js',
+    chunkFilename: isDev ? 'js/[name].js' : 'js/[id].[contenthash:8].js',
     path: path.join(__dirname, '/dist'),
     publicPath: '/',
   },
@@ -113,6 +115,10 @@ module.exports = {
     new ScriptExtHtmlWebpackPlugin({ defaultAttribute: 'async' }),
     isDev && new webpack.HotModuleReplacementPlugin(),
     isProd && new MiniCssExtractPlugin(require('./dev/webpack/cssExtractOpts')),
+    isProd &&
+      new PurgecssPlugin({
+        paths: glob.sync(path.join(__dirname, 'src/**/*'), { nodir: true }),
+      }),
     isProd && new SizePlugin(),
   ].filter(Boolean),
 };

@@ -11,8 +11,6 @@ const dynamicImportSyntaxPlugin = require('@babel/plugin-syntax-dynamic-import')
 const reactHotLoaderPlugin = require('react-hot-loader/babel');
 const dynamicImportForNodePlugin = require('babel-plugin-dynamic-import-node');
 
-console.log('WAHAWEQWE');
-
 module.exports = api => {
   api.cache(() => process.env.NODE_ENV);
 
@@ -20,12 +18,9 @@ module.exports = api => {
   const isTest = process.env.NODE_ENV === 'test';
   const isProd = process.env.NODE_ENV === 'production';
 
-  console.log('ASDJQWEQ');
-  console.log(isTest ? 'test' : 'not');
-
   return {
     presets: [
-      // reqrite import to require for jest-test
+      // rewrite import to require for jest-test
       isTest && [
         envPreset,
         {

@@ -10,6 +10,10 @@
     "prefer-object-spread": false,
     "member-access": false,
     "no-object-literal-type-assertion": false,
+    "only-arrow-functions": false,
+    "no-console": {
+      "severity": "warn"
+    },
     "no-multiline-string": false,
     "no-any": {
       "severity": "warning"
