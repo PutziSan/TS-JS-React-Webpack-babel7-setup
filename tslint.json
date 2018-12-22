@@ -11,6 +11,9 @@
     "member-access": false,
     "no-object-literal-type-assertion": false,
     "only-arrow-functions": false,
+    "array-type": false,
+    "object-literal-sort-keys": false,
+    "jsx-no-lambda": false,
     "no-console": {
       "severity": "warn"
     },

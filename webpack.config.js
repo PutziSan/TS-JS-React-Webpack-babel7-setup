@@ -8,6 +8,7 @@ const PurgecssPlugin = require('purgecss-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const SizePlugin = require('size-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const workboxPlugin = require('workbox-webpack-plugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 
 require('dotenv').config();
@@ -118,6 +119,13 @@ module.exports = {
     isProd &&
       new PurgecssPlugin({
         paths: glob.sync(path.join(__dirname, 'src/**/*'), { nodir: true }),
+      }),
+    isProd &&
+      new workboxPlugin.InjectManifest({
+        swSrc: path.join(__dirname, 'src/service-worker.js'),
+        swDest: 'service-worker.js',
+        // do not cache img-files (werden zur runtime gecached)
+        globPatterns: ['**/*.{html,json,js,css}'],
       }),
     isProd && new SizePlugin(),
   ].filter(Boolean),

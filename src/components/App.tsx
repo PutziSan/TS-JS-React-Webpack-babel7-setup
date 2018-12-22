@@ -6,6 +6,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { JsView } from './JsView';
 
 import './App.css';
+import { ServiceWorkerUi } from './ServiceWorkerUi';
 
 interface AppViewState {
   start: boolean;
@@ -43,6 +44,7 @@ class InnerApp extends React.Component<{}, AppViewState> {
     return (
       <ErrorBoundary>
         <div>
+          <ServiceWorkerUi />
           <h1>42!</h1>
           <button onClick={() => this.alertAfterTime()}>
             alert with async
@@ -50,14 +52,14 @@ class InnerApp extends React.Component<{}, AppViewState> {
           <h2 className="app">import static assets (e.g. PNGs)</h2>
           <img
             alt="my"
-            style={{ maxHeight: 160, width: 'auto' }}
+            style={{ maxHeight: 160, width: 'auto', maxWidth: '100%' }}
             src={yinYang2000pxPng}
           />
           <hr />
           <h2>
             link to static assets (can used as external links, not hashed)
           </h2>
-          <img src="/images/yin-yang-public.jpg" />
+          <img style={{ maxWidth: '100%' }} src="/images/yin-yang-public.jpg" />
           <hr />
           <h2>
             Load async with dynamic <code>import()</code>
