@@ -12,7 +12,8 @@ const reactHotLoaderPlugin = require('react-hot-loader/babel');
 const dynamicImportForNodePlugin = require('babel-plugin-dynamic-import-node');
 
 module.exports = api => {
-  api.cache(() => process.env.NODE_ENV);
+  // api.cache(() => process.env.NODE_ENV);
+  api.cache.never();
 
   const isDev = process.env.NODE_ENV === 'development';
   const isTest = process.env.NODE_ENV === 'test';

@@ -31,7 +31,12 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
-export class ServiceWorkerUi extends React.PureComponent<{}, State> {
+interface Props {
+  // tslint:disable-next-line:no-any
+  onError?: (error: any) => void;
+}
+
+export class ServiceWorkerUi extends React.PureComponent<Props, State> {
   state: State = {
     serviceWorker: undefined,
     deferredPrompt: undefined,
@@ -44,18 +49,21 @@ export class ServiceWorkerUi extends React.PureComponent<{}, State> {
     sw.onNewServiceWorker(serviceWorker => this.setState({ serviceWorker }));
     sw.onControllerChanged(() => window.location.reload());
 
-    // TODO ERROR-reporting!
-    window.addEventListener('load', () => {
-      if (process.env.NODE_ENV === 'production') {
-        sw.registerNewServiceWorker().catch(console.error);
-      }
-    });
-
     window.addEventListener('beforeinstallprompt', e => {
       // Prevent Chrome 67 and earlier from automatically showing the prompt
       e.preventDefault();
       // Stash the event so it can be triggered later.
       this.setState({ deferredPrompt: e as BeforeInstallPromptEvent });
+    });
+
+    window.addEventListener('load', () => {
+      if (process.env.NODE_ENV === 'production') {
+        sw.registerNewServiceWorker().catch(e => {
+          if (this.props.onError) {
+            this.props.onError(e);
+          }
+        });
+      }
     });
   }
 
